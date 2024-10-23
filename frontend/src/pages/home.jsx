@@ -12,13 +12,22 @@ import { Button,
     Tbody,
     Td,
     Link,
+    Image,
+    Checkbox,
 } from '@chakra-ui/react';
 import Header from '../components/Header';
 import { FileManager } from "../../wailsjs/go/main/App";
+import { BrowserOpenURL } from "../../wailsjs/runtime/runtime"
 function App() {
     const [selectedValue, setselectedValue] = useState("google")
     const [addtionalElements, setaddtionalElements] = useState('')
+    const [checkedItems, setCheckedItems] = useState([])
+
+    const allChecked = checkedItems.every(Boolean)
+    const isIndeterminate = checkedItems.some(Boolean) && !allChecked
+
     const changeValue = (e) => setselectedValue(e.target.value)
+
 
     function sleepTime() {
         setTimeout(displayImages, 4000)
@@ -40,14 +49,30 @@ function App() {
             // if (getImageRes.status === 404) alert(`${target}の画像を取得できませんでした`)
             const getImageResJson = await getImageRes.json()
             const existedPaths = getImageResJson.existedPaths
-            console.log(existedPaths)
-            console.log(getImageResJson)
-            const tableElements = existedPaths.map(element => 
+
+            setCheckedItems(Array(existedPaths.length).fill(false))
+            
+            const handleChildChange = (index) => (e) => {
+                const newCheckedItems = checkedItems.map((checked, i) => (i === index ? e.target.checked : checked));
+                setCheckedItems(newCheckedItems);
+            };
+
+
+            const tableElements = existedPaths.map((element, index) => 
                 <Tr key={element.path}>
-                    <Td><img src={`http://127.0.0.1:8000/Images/${element.path}.jpg`} /></Td>
-                    <Td>{element.path}</Td>
-                    <Td>{element.fullPath}</Td>
-                    <Td><Link color="teal.400" href={element.url}>{element.url}</Link></Td>
+                    <Td>
+                        <Center>
+                            <Checkbox
+                            sChecked={checkedItems[index]}
+                            onChange={handleChildChange(index)}
+                            >
+                            </Checkbox>
+                        </Center>
+                    </Td>
+                        <Td><Image src={`http://127.0.0.1:8000/Images/${element.path}.jpg`} boxSize='50px' /></Td>
+                        <Td>{element.path}</Td>
+                        <Td>{element.subdirname}</Td>
+                        <Td><Link color="teal.400" onClick={() => BrowserOpenURL(element.url)}>{element.url}</Link></Td>
                 </Tr>
             )
             setaddtionalElements(tableElements)
@@ -80,32 +105,42 @@ function App() {
                         </Select>
                     </Flex>
                 </Box>
-                <TableContainer
-                    mx="60px"
-                    my="30px"
-                    h="65vh"
-                    border="1px solid"
-                    borderRadius="8px"
-                    boxShadow="md"
-                    maxHeight="65vh" 
-                    overflowY="auto"
-                >
-                    <Table variant='simple'>
-                        <Thead>
-                            <Tr>
-                                <Th>画像</Th>
-                                <Th>名前</Th>
-                                <Th>場所</Th>
-                                <Th>商品url</Th>
-                            </Tr>
-                        </Thead>
-                            {addtionalElements ?
-                                <Tbody>
-                                    {addtionalElements}
-                                </Tbody> : null
-                            }
-                    </Table>
-                </TableContainer>
+                    {addtionalElements ?
+                        <Checkbox
+                        isChecked={allChecked}
+                        isIndeterminate={isIndeterminate}
+                        onChange={(e) => setCheckedItems(Array(checkedItems.length).fill(e.target.checked))}
+                        >
+                        </Checkbox> : null
+                    }
+                    
+                    <TableContainer
+                        mx="60px"
+                        my="30px"
+                        h="65vh"
+                        border="1px solid"
+                        borderRadius="8px"
+                        boxShadow="md"
+                        maxHeight="65vh" 
+                        overflowY="auto"
+                    >
+                        <Table variant='simple'>
+                            <Thead>
+                                <Tr>
+                                    <Th w='1'></Th>
+                                    <Th>画像</Th>
+                                    <Th>名前</Th>
+                                    <Th>場所</Th>
+                                    <Th>商品url</Th>
+                                </Tr>
+                            </Thead>
+                                {addtionalElements ?
+                                    <Tbody>
+                                        {addtionalElements}
+                                    </Tbody> : null
+                                }
+                        </Table>
+                    </TableContainer>
                 <Box>
                     <Center>
                         <Button 

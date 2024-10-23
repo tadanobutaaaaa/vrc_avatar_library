@@ -63,7 +63,8 @@ async def getImage(request: Request, apiName: str):
         if index + 1 == 100: break
         cleaned = re.sub(pattern, "", os.path.basename(str(path)))
         cleanedPath = cleaned.replace("_"," ")
-        folderInformationList.append({'fullPath': str(path), 'path': cleanedPath})
+        subdirname = os.path.join(str(searchFolderPath), os.path.basename(os.path.dirname(path)))
+        folderInformationList.append({'fullPath': str(path), 'path': cleanedPath, 'subdirname': subdirname})
 
     if apiName == 'google':
         returnInformationList = google_search(folderInformationList)
