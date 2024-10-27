@@ -22,9 +22,19 @@ def google_search(pathNameList):
             results = response.json()
             name['url'] = results['items'][0]['formattedUrl']
         except KeyError:
-            continue
+            try:
+                paramas = {
+                'q': name['subPath'],
+                'key': API_KEY,
+                'cx': CSE_ID
+                }
+                response = requests.get(url, params=paramas)
+                results = response.json()
+                name['url'] = results['items'][0]['formattedUrl']
+            except KeyError:
+                continue
         
         downloadImages(results['items'][0]['pagemap']['metatags'][0]['og:image'], name['path'])
-        time.sleep(2)
+        time.sleep(1)
     print(pathNameList)
     return pathNameList

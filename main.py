@@ -7,8 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from typing import List
 from googleSearch import google_search
 from duckduckgoSearch import duckduckgo_search
-
-
+from searchIcons import makeUnitypackageFile, settingFolderIcon
 
 app = FastAPI()
 
@@ -26,45 +25,28 @@ app.add_middleware(
 
 if not os.path.isdir('Images'):
     os.mkdir('Images')
+if not os.path.isdir('Avaters'):
+    os.mkdir('Avaters')
 
 app.mount("/Images", StaticFiles(directory="Images"), name="Images")
-"""
-    @app.post("/duckduckgo")
-def search_duckduckgo(pathList: List[dict]):
-    print(pathList)
-    return duckduckgo_search(pathList)
-
-@app.post("/google")
-def search_google(pathList: List[dict]):
-    print(pathList)
-    return google_search(pathList)
-"""
-
 
 @app.post("/image/get/{apiName}")
 async def getImage(request: Request, apiName: str):
     json = await request.json()
     folderInformationList = []
     # todo
-    # ダウンローフォルダ内から.unitypackageがふくまれているフォルダを検索するプログラムをかく
-    # jsxに保存されているimagesというフォルダの中身を全部返す
-    # これ ↓
-    # target = f"D:\Codes\App\imageGetterSample\img\{json['target']}.png"
-    # ./images/a.png 
-    # 辞書型であった場合はexisted[]
-    # forで回す
     # エクスプローラーの表示方法を変えれるか調べる 大アイコン、特大アイコンなど
-    # リストの辞書型を作りそこにpathをいれる
     homeDirectory = os.path.expanduser("~")
     searchFolderPath = Path(homeDirectory) / "Downloads" # todo フロントエンドの設定画面などでどのフォルダを検索する対象にするか選べるようにする
     filePathList = list(searchFolderPath.rglob("*.unitypackage"))
-    pattern = r"(_ver|ver|_|-v)\d+(\.\d+)*|\.unitypackage$"
+    pattern = r"(_ver|ver|_|-v|_v)\d+(\.\d+)*|\.unitypackage$"
+
     for index, path in enumerate(filePathList):
         if index + 1 == 100: break
         cleaned = re.sub(pattern, "", os.path.basename(str(path)))
         cleanedPath = cleaned.replace("_"," ")
         subdirname = os.path.join(str(searchFolderPath), os.path.basename(os.path.dirname(path)))
-        folderInformationList.append({'fullPath': str(path), 'path': cleanedPath, 'subdirname': subdirname})
+        folderInformationList.append({'fullPath': str(path), 'path': cleaned, 'subPath': cleanedPath,'subdirname': subdirname})
 
     if apiName == 'google':
         returnInformationList = google_search(folderInformationList)
@@ -79,14 +61,19 @@ async def getImage(request: Request, apiName: str):
             existedPaths.append(object)
         else:
             notExistedPaths.append(object)
-    # target = ["C:\\Users\\youya\\Downloads\\hotogiya_Kuuta_ver1.03", "C:\\Users\\youya\\Downloads\\少年アリス服_Rusk_ver1.01", "..."]
     return {
-        #すべて参照元のフォルダのpath,name,updatedを参照する
-        #現在はダウンロードフォルダの.unitypackageが含まれているフォルダから参照する
         "existedPaths":
             existedPaths
-        , #ここに画像が存在しているファイルのpathを返す
+        ,
         "notExistedPaths":
             notExistedPaths
-        , #ここに画像が存在していないファイルのpathを返す
+        ,
     }
+
+@app.post("/thumbnail")
+async def settingThumbnail(ThumbnailList: List[dict]):
+    print(ThumbnailList)
+    imagefile = './Images/'
+    for file in ThumbnailList:
+        settingFolderIcon(os.path.join(imagefile, file['path'] + '.png'), file['path'], file['subdirname'], makeUnitypackageFile(file['subdirname']))
+    return{"status": "Success"}
