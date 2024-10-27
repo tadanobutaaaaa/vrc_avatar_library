@@ -14,6 +14,8 @@ import { Icon,
     DrawerContent,
     DrawerCloseButton,
     useDisclosure,
+    Input,
+    Button,
 } from '@chakra-ui/react';
 import { MoonIcon, SunIcon, SettingsIcon, InfoIcon, QuestionIcon } from '@chakra-ui/icons';
 import { Link } from "react-router-dom";
@@ -43,7 +45,34 @@ function Header () {
                 <Link to="/help">
                     <Icon as={QuestionIcon} boxSize={6}/>
                 </Link>
-                    <IconButton variant="unstyled" aria-label='setting' icon={<SettingsIcon boxSize={6}/>} / >
+                    <IconButton 
+                        variant="unstyled" a
+                        ria-label='setting' 
+                        icon={<SettingsIcon boxSize={6}/>}
+                        ref={btnRef} 
+                        onClick={onOpen}/>
+                    <Drawer
+                        isOpen={isOpen}
+                        placement='right'
+                        onClose={onClose}
+                        finalFocusRef={btnRef}>
+                    <DrawerOverlay />
+                    <DrawerContent>
+                        <DrawerCloseButton />
+                        <DrawerHeader>Google Custom Search API Key</DrawerHeader>
+
+                        <DrawerBody>
+                            <Input placeholder='Type here...' />
+                        </DrawerBody>
+
+                        <DrawerFooter>
+                            <Button variant='outline' mr={3} onClick={onClose}>
+                            Cancel
+                            </Button>
+                            <Button colorScheme='blue'>Save</Button>
+                        </DrawerFooter>
+                        </DrawerContent>
+                    </Drawer>
             </HStack>
         </Flex>
     )
