@@ -16,6 +16,7 @@ import { Icon,
     useDisclosure,
     Input,
     Button,
+    useToast,
 } from '@chakra-ui/react';
 import { MoonIcon, SunIcon, SettingsIcon, InfoIcon, QuestionIcon } from '@chakra-ui/icons';
 import { Link } from "react-router-dom";
@@ -27,9 +28,27 @@ function Header () {
     const btnRef = useRef()
     const [value, setValue] = useState('')
     const handleChange = (e) => setValue(e.target.value)
+    const toast = useToast()
 
     function writeApikeyEnv(apiKey) {
-        WriteEnv(apiKey)
+        if (value.length === 39) {
+            WriteEnv(apiKey)
+            toast({
+                title: 'システムからの通知',
+                description: '正常にGoogle API keyが登録されました',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            })
+        } else {
+            toast({
+                title: 'システムからの通知',
+                description: '不正な値が入力されました\nもう一度やり直してください',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            })
+        }
     }
     
     return (
