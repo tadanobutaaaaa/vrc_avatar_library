@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Icon, 
     useColorMode, 
     IconButton, 
@@ -19,12 +19,19 @@ import { Icon,
 } from '@chakra-ui/react';
 import { MoonIcon, SunIcon, SettingsIcon, InfoIcon, QuestionIcon } from '@chakra-ui/icons';
 import { Link } from "react-router-dom";
+import { WriteEnv } from "../../wailsjs/go/main/App";
 
 function Header () {
     // const { colorMode, toggleColorMode } = useColorMode()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const btnRef = useRef()
+    const [value, setValue] = useState('')
+    const handleChange = (e) => setValue(e.target.value)
 
+    function writeApikeyEnv(apiKey) {
+        WriteEnv(apiKey)
+    }
+    
     return (
         <Flex alignItems="center" justifyContent="center" bg="teal.400" p={6} position="relative">
             <Box textAlign="center">
@@ -62,14 +69,17 @@ function Header () {
                         <DrawerHeader>Google Custom Search API Key</DrawerHeader>
 
                         <DrawerBody>
-                            <Input placeholder='Type here...' />
+                            <Input 
+                                value={value}
+                                onChange={handleChange}
+                                placeholder='Type here...' />
                         </DrawerBody>
 
                         <DrawerFooter>
                             <Button variant='outline' mr={3} onClick={onClose}>
                             Cancel
                             </Button>
-                            <Button colorScheme='blue'>Save</Button>
+                            <Button colorScheme='blue' onClick={() => writeApikeyEnv(value)}>Save</Button>
                         </DrawerFooter>
                         </DrawerContent>
                     </Drawer>

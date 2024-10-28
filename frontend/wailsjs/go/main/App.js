@@ -5,3 +5,7 @@
 export function FileManager() {
   return window['go']['main']['App']['FileManager']();
 }
+
+export function WriteEnv(arg1) {
+  return window['go']['main']['App']['WriteEnv'](arg1);
+}

@@ -11,6 +11,8 @@ CSE_ID = '100d459ed822542ed'
 url = 'https://www.googleapis.com/customsearch/v1'
 
 def google_search(pathNameList):
+    f = open('debug.txt', 'a', encoding='UTF-8')
+    f.write('google_search関数が呼び出されました\n')
     for name in pathNameList:
         try:
             paramas = {

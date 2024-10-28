@@ -12,7 +12,7 @@ from searchIcons import makeUnitypackageFile, settingFolderIcon
 app = FastAPI()
 
 origins = [
-    'http://wails.localhost:34115',
+    'http://wails.localhost',
 ]
 
 app.add_middleware(
@@ -30,9 +30,14 @@ if not os.path.isdir('Avaters'):
 
 app.mount("/Images", StaticFiles(directory="Images"), name="Images")
 
+f = open('debug.txt', 'a', encoding='UTF-8')
+f.write('FastAPIが起動しました\n')
+
 @app.post("/image/get/{apiName}")
 async def getImage(request: Request, apiName: str):
     json = await request.json()
+    f = open('debug.txt', 'a', encoding='UTF-8')
+    f.write('/image/get/にリクエストがありました\n')
     folderInformationList = []
     # todo
     # エクスプローラーの表示方法を変えれるか調べる 大アイコン、特大アイコンなど

@@ -18,6 +18,7 @@ import { Button,
 import Header from '../components/Header';
 import { FileManager } from "../../wailsjs/go/main/App";
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime"
+
 function App() {
     const [selectedValue, setselectedValue] = useState("google")
     const [addtionalElements, setaddtionalElements] = useState('')
@@ -63,20 +64,14 @@ function App() {
                     body: JSON.stringify({})
                 }
             )
-            // if (getImageRes.status === 404) alert(`${target}の画像を取得できませんでした`)
             const getImageResJson = await getImageRes.json()
             setExistedPaths(getImageResJson.existedPaths)
 
             setCheckedItems(Array(existedPaths.length).fill(false))
-            //console.log(addtionalElements)
-            // path = getImageResJson.path
         } catch (err) {
             console.error(err)
             return
         }
-        
-        // 画面に表示する
-        // outputFileRef.current.src = `http://127.0.0.1:8000/${path}`
     }
 
     useEffect(() => {
