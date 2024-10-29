@@ -1,8 +1,8 @@
 import requests
-from bs4 import BeautifulSoup
-from PIL import Image
 import shutil
 import os
+from bs4 import BeautifulSoup
+from PIL import Image
 
 def downloadImages(url, iconName):
     response = requests.get(url)

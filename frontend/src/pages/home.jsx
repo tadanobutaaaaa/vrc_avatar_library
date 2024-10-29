@@ -17,7 +17,7 @@ import { Button,
     useToast,
 } from '@chakra-ui/react';
 import Header from '../components/Header';
-import { FileManager, SearchAPIkey } from "../../wailsjs/go/main/App";
+import { FileManager, SearchAPIkey, StopFastAPI } from "../../wailsjs/go/main/App";
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime"
 
 function App() {
@@ -112,12 +112,16 @@ function App() {
                                 />
                         </Checkbox>
                 </Td>
-            <Td>{element.path}</Td>
+            <Td>{element.query}</Td>
             <Td><Link color="teal.400" onClick={() => BrowserOpenURL(element.url)}>{element.url}</Link></Td>
         </Tr>
     )
     setaddtionalElements(tableElements)
     }}, [existedPaths])
+
+    function stopFastAPI() {
+        StopFastAPI()
+    }
 
     async function settingThumbnail() {
         try{
@@ -151,6 +155,7 @@ function App() {
                 position: 'top',
                 isClosable: true,
             })
+            stopFastAPI()
         } catch (err) {
             console.error(err)
             return

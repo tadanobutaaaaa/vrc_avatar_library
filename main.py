@@ -1,5 +1,7 @@
 import os
 import re
+import multiprocessing
+import uvicorn
 from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,14 +33,9 @@ if not os.path.isdir('Avaters'):
 
 app.mount("/Images", StaticFiles(directory="Images"), name="Images")
 
-f = open('debug.txt', 'a', encoding='UTF-8')
-f.write('FastAPIが起動しました\n')
-
 @app.post("/image/get/{apiName}")
 async def getImage(request: Request, apiName: str):
     json = await request.json()
-    f = open('debug.txt', 'a', encoding='UTF-8')
-    f.write('/image/get/にリクエストがありました\n')
     folderInformationList = []
     # todo
     # エクスプローラーの表示方法を変えれるか調べる 大アイコン、特大アイコンなど
@@ -49,9 +46,10 @@ async def getImage(request: Request, apiName: str):
 
     for index, path in enumerate(filePathList):
         if index + 1 == 100: break
+        nextPath = str(path).split(os.sep)
         cleaned = re.sub(pattern, "", os.path.basename(str(path)))
         cleanedPath = cleaned.replace("_"," ")
-        subdirname = os.path.join(str(searchFolderPath), os.path.basename(os.path.dirname(path)))
+        subdirname = os.path.join(str(searchFolderPath), nextPath[nextPath.index("Downloads") + 1])
         folderInformationList.append({'fullPath': str(path), 'path': cleaned, 'subPath': cleanedPath,'subdirname': subdirname})
 
     if apiName == 'google':
@@ -83,3 +81,7 @@ async def settingThumbnail(ThumbnailList: List[dict]):
     for file in ThumbnailList:
         settingFolderIcon(os.path.join(imagefile, file['path'] + '.png'), file['path'], file['subdirname'], makeUnitypackageFile(file['subdirname']))
     return{"status": "Success"}
+
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
+    uvicorn.run(app, port=8000, reload=False, workers=1)

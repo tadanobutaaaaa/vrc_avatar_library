@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"vrc_avater_library/backend"
+	"time"
 	"os"
 	"github.com/joho/godotenv"
 	"fmt"
+	"os/exec"
 )
 
 // App struct
@@ -23,7 +24,16 @@ func (a *App) startup(ctx context.Context) {
 }
 
 func (a *App) FileManager() {
-	backend.PostServer()
+	fmt.Println("正常にPostFastAPI.goが動作しました")
+	cmd := exec.Command("./main.exe")
+	cmd.Stderr = os.Stderr
+	err := cmd.Start()
+	if err != nil {
+		fmt.Println("コマンドの開始中にエラーが発生しました:", err)
+	}
+
+	time.Sleep(3 * time.Second)
+	fmt.Println("FastAPIのサーバーが起動しました。")
 }
 
 func (a *App) WriteEnv(APIkey string) {
