@@ -30,22 +30,24 @@ function Header () {
     const handleChange = (e) => setValue(e.target.value)
     const toast = useToast()
 
-    function writeApikeyEnv(apiKey) {
+    async function writeApikeyEnv(apiKey) {
         if (value.length === 39) {
-            WriteEnv(apiKey)
+            await WriteEnv(apiKey)
             toast({
                 title: 'システムからの通知',
                 description: '正常にGoogle API keyが登録されました',
                 status: 'success',
-                duration: 3000,
+                duration: 2500,
+                position: 'top',
                 isClosable: true,
             })
         } else {
             toast({
                 title: 'システムからの通知',
-                description: '不正な値が入力されました\nもう一度やり直してください',
+                description: '不正な値が入力されました もう一度やり直してください',
                 status: 'error',
-                duration: 3000,
+                duration: 2500,
+                position: 'top',
                 isClosable: true,
             })
         }
@@ -72,7 +74,7 @@ function Header () {
                     <Icon as={QuestionIcon} boxSize={6}/>
                 </Link>
                     <IconButton 
-                        variant="unstyled" a
+                        variant="unstyled"
                         ria-label='setting' 
                         icon={<SettingsIcon boxSize={6}/>}
                         ref={btnRef} 

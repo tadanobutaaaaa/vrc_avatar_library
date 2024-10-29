@@ -6,6 +6,10 @@ export function FileManager() {
   return window['go']['main']['App']['FileManager']();
 }
 
+export function SearchAPIkey() {
+  return window['go']['main']['App']['SearchAPIkey']();
+}
+
 export function WriteEnv(arg1) {
   return window['go']['main']['App']['WriteEnv'](arg1);
 }

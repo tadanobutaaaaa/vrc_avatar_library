@@ -11,8 +11,6 @@ CSE_ID = '100d459ed822542ed'
 url = 'https://www.googleapis.com/customsearch/v1'
 
 def google_search(pathNameList):
-    f = open('debug.txt', 'a', encoding='UTF-8')
-    f.write('google_search関数が呼び出されました\n')
     for name in pathNameList:
         try:
             paramas = {
@@ -23,6 +21,7 @@ def google_search(pathNameList):
             response = requests.get(url, params=paramas)
             results = response.json()
             name['url'] = results['items'][0]['formattedUrl']
+            name['query'] = name['path']
         except KeyError:
             try:
                 paramas = {
@@ -33,6 +32,7 @@ def google_search(pathNameList):
                 response = requests.get(url, params=paramas)
                 results = response.json()
                 name['url'] = results['items'][0]['formattedUrl']
+                name['query'] = name['subPath']
             except KeyError:
                 continue
         

@@ -12,6 +12,7 @@ from searchIcons import makeUnitypackageFile, settingFolderIcon
 app = FastAPI()
 
 origins = [
+    'http://wails.localhost:34115',
     'http://wails.localhost',
 ]
 

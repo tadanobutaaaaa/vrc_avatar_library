@@ -14,9 +14,10 @@ import { Button,
     Link,
     Image,
     Checkbox,
+    useToast,
 } from '@chakra-ui/react';
 import Header from '../components/Header';
-import { FileManager } from "../../wailsjs/go/main/App";
+import { FileManager, SearchAPIkey } from "../../wailsjs/go/main/App";
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime"
 
 function App() {
@@ -24,8 +25,10 @@ function App() {
     const [addtionalElements, setaddtionalElements] = useState('')
     const [checkedItems, setCheckedItems] = useState([])
     const [existedPaths, setExistedPaths] = useState([])
+    const toast = useToast()
 
     const changeValue = (e) => setselectedValue(e.target.value)
+
     const handleChildChange = (index) => (e) => {
         const checked = e.target.checked; // チェック状態を取得
         setCheckedItems(prevCheckedItems => {
@@ -47,12 +50,26 @@ function App() {
         console.log(checkedItems);
     }, [checkedItems]);
 
+
     function sleepTime() {
-        setTimeout(displayImages, 4000)
+        SearchAPIkey().then((result) => {
+            if(result) {
+                setTimeout(displayImages, 4000)
+            } else {
+                toast({
+                    title: 'システムからの通知',
+                    description: "GoogleAPIkeyが設定されていないため実行できません　　　　　右上の歯車マークからAPIkeyを設定してください",
+                    status: 'error',
+                    duration: 5000,
+                    position: 'top',
+                    isClosable: true,
+                })
+            }
+        })
     }
 
     async function displayImages() {
-        FileManager()
+        await FileManager()
         try {
             const getImageRes = await fetch("http://localhost:8000/image/get/" + selectedValue,
                 {
@@ -126,6 +143,14 @@ function App() {
             )
 
             const thumbnailResJSon = await postFastapiThumbnail.json()
+            toast({
+                title: 'システムからの通知',
+                description: "正常にサムネイルが設定されました",
+                status: 'success',
+                duration: 2500,
+                position: 'top',
+                isClosable: true,
+            })
         } catch (err) {
             console.error(err)
             return
@@ -201,7 +226,6 @@ function App() {
                         >ファイルを検索する
                         </Button>
                         }
-                        
                     </Center> 
                 </Box>
         </>

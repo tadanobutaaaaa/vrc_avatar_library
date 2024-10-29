@@ -3,4 +3,6 @@
 
 export function FileManager():Promise<void>;
 
+export function SearchAPIkey():Promise<boolean>;
+
 export function WriteEnv(arg1:string):Promise<void>;
