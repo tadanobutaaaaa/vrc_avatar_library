@@ -1,7 +1,6 @@
 import requests
 import shutil
 import os
-from bs4 import BeautifulSoup
 from PIL import Image
 
 def downloadImages(url, iconName):
@@ -18,25 +17,6 @@ def downloadImages(url, iconName):
     imgResize = img.resize((256,256), Image.LANCZOS)
     imgResize.save(filePath)
 
-def SearchIcons(url, iconName):
-    fileName = iconName + '.png'
-    response = requests.get(url)
-    html = response.text
-    soup = BeautifulSoup(html, 'html.parser')
-    folderPath = './Images/'
-    
-    imageElements= soup.find('img', class_='market-item-detail-item-image')
-    
-    responseImage = requests.get(imageElements['src'])
-    image = responseImage.content
-    filePath = os.path.join(folderPath, fileName)
-    
-    with open(filePath, 'wb') as file:
-        file.write(image)
-    
-    img = Image.open(filePath)
-    imgResize = img.resize((256,256), Image.LANCZOS)
-    imgResize.save(filePath)
 def makeUnitypackageFile(fullPath):
     avatars_dir = os.path.join(os.getcwd(), 'Avaters')
     unityPackageFile = os.path.basename(fullPath)

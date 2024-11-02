@@ -21,13 +21,10 @@ import { FileManager, SearchAPIkey, ShutdownFastAPI } from "../../wailsjs/go/mai
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime"
 
 function App() {
-    const [selectedValue, setselectedValue] = useState("google")
     const [addtionalElements, setaddtionalElements] = useState('')
     const [checkedItems, setCheckedItems] = useState([])
     const [existedPaths, setExistedPaths] = useState([])
     const toast = useToast()
-
-    const changeValue = (e) => setselectedValue(e.target.value)
 
     const handleChildChange = (index) => (e) => {
         const checked = e.target.checked; // チェック状態を取得
@@ -54,7 +51,7 @@ function App() {
     function sleepTime() {
         SearchAPIkey().then((result) => {
             if(result) {
-                setTimeout(displayImages, 4000)
+                displayImages()
             } else {
                 toast({
                     title: 'システムからの通知',
@@ -71,7 +68,7 @@ function App() {
     async function displayImages() {
         await FileManager()
         try {
-            const getImageRes = await fetch("http://localhost:8000/image/get/" + selectedValue,
+            const getImageRes = await fetch("http://localhost:8000/image/get",
                 {
                     mode: "cors",
                     method: 'POST',
@@ -168,20 +165,6 @@ function App() {
     return (
         <>
             <Header />
-                <Box>
-                    <Flex justifyContent="flex-end">
-                        <Select 
-                            w={335}
-                            mt={3}
-                            mr={5}
-                            border="1px solid"
-                            onChange={changeValue}
-                        >
-                            <option value="google">Google</option>
-                            <option value="duckduckgo">DuckDuckGo(非推奨)</option>
-                        </Select>
-                    </Flex>
-                </Box>
                     {addtionalElements ?
                         <Checkbox
                             isChecked={allChecked}

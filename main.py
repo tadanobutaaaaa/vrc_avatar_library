@@ -9,7 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from typing import List
 from googleSearch import google_search
-from duckduckgoSearch import duckduckgo_search
 from searchIcons import makeUnitypackageFile, settingFolderIcon
 
 app = FastAPI()
@@ -34,12 +33,9 @@ if not os.path.isdir('Avaters'):
 
 app.mount("/Images", StaticFiles(directory="Images"), name="Images")
 
-@app.post("/image/get/{apiName}")
-async def getImage(request: Request, apiName: str):
-    json = await request.json()
+@app.post("/image/get")
+async def getImage():
     folderInformationList = []
-    # todo
-    # エクスプローラーの表示方法を変えれるか調べる 大アイコン、特大アイコンなど
     homeDirectory = os.path.expanduser("~")
     searchFolderPath = Path(homeDirectory) / "Downloads" # todo フロントエンドの設定画面などでどのフォルダを検索する対象にするか選べるようにする
     filePathList = list(searchFolderPath.rglob("*.unitypackage"))
@@ -53,10 +49,7 @@ async def getImage(request: Request, apiName: str):
         subdirname = os.path.join(str(searchFolderPath), nextPath[nextPath.index("Downloads") + 1])
         folderInformationList.append({'fullPath': str(path), 'path': cleaned, 'subPath': cleanedPath,'subdirname': subdirname})
 
-    if apiName == 'google':
-        returnInformationList = google_search(folderInformationList)
-    else:
-        returnInformationList = duckduckgo_search(folderInformationList)
+    returnInformationList = google_search(folderInformationList)
     
     existedPaths = []
     notExistedPaths = []

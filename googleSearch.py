@@ -34,6 +34,7 @@ def google_search(pathNameList):
                 name['url'] = results['items'][0]['formattedUrl']
                 name['query'] = name['subPath']
             except KeyError:
+                time.sleep(1)
                 continue
         
         downloadImages(results['items'][0]['pagemap']['metatags'][0]['og:image'], name['path'])
