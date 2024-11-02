@@ -4,13 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+duckduckgo-search = "*"
 fastapi = "*"
 uvicorn = "*"
-beautifulsoup4 = "*"
-pillow = "*"
 requests = "*"
 python-dotenv = "*"
-duckduckgo-search = "*"
+beautifulsoup4 = "*"
+pillow = "*"
 
 [dev-packages]
 

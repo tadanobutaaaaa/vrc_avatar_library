@@ -10,6 +10,10 @@ export function SearchAPIkey() {
   return window['go']['main']['App']['SearchAPIkey']();
 }
 
+export function ShutdownFastAPI() {
+  return window['go']['main']['App']['ShutdownFastAPI']();
+}
+
 export function WriteEnv(arg1) {
   return window['go']['main']['App']['WriteEnv'](arg1);
 }

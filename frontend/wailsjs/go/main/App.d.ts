@@ -5,4 +5,6 @@ export function FileManager():Promise<void>;
 
 export function SearchAPIkey():Promise<boolean>;
 
+export function ShutdownFastAPI():Promise<void>;
+
 export function WriteEnv(arg1:string):Promise<void>;

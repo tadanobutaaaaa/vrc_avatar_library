@@ -17,7 +17,7 @@ import { Button,
     useToast,
 } from '@chakra-ui/react';
 import Header from '../components/Header';
-import { FileManager, SearchAPIkey, StopFastAPI } from "../../wailsjs/go/main/App";
+import { FileManager, SearchAPIkey, ShutdownFastAPI } from "../../wailsjs/go/main/App";
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime"
 
 function App() {
@@ -119,8 +119,8 @@ function App() {
     setaddtionalElements(tableElements)
     }}, [existedPaths])
 
-    function stopFastAPI() {
-        StopFastAPI()
+    function shutdownFastAPI() {
+        ShutdownFastAPI()
     }
 
     async function settingThumbnail() {
@@ -155,7 +155,7 @@ function App() {
                 position: 'top',
                 isClosable: true,
             })
-            stopFastAPI()
+            shutdownFastAPI()
         } catch (err) {
             console.error(err)
             return
