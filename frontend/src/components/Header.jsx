@@ -1,4 +1,3 @@
-import { useRef, useState } from 'react';
 import { Icon, 
     useColorMode, 
     IconButton, 
@@ -9,7 +8,6 @@ import { Icon,
 } from '@chakra-ui/react';
 import { MoonIcon, SunIcon, SettingsIcon, InfoIcon, QuestionIcon } from '@chakra-ui/icons';
 import { Link } from "react-router-dom";
-import { WriteEnv } from "../../wailsjs/go/main/App";
 
 function Header () {
     // const { colorMode, toggleColorMode } = useColorMode()
