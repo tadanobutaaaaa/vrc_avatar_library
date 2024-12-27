@@ -1,17 +1,19 @@
 package main
 
 import (
-    //"github.com/gin-contrib/cors"
-    "github.com/gin-gonic/gin"
-    //"github.com/PuerkitoBio/goquery"
+	//"github.com/gin-contrib/cors"
+	"bytes"
 
-    "path/filepath"
-    "net/http"
-    "strings"
-    "fmt"
-    "log"
-    "io"
-    "os"
+	"github.com/gin-gonic/gin"
+	//"github.com/PuerkitoBio/goquery"
+
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 type Root map[string][]map[string]Booth
@@ -37,6 +39,7 @@ func main() {
     }
     DownloadPath := filepath.Join(home, "Downloads")
     currentPath, _ := os.Getwd()
+    currentAvatersPath := filepath.Join(currentPath, "Avaters")
     currentImagesPath := filepath.Join(currentPath, "Images")
 
     fmt.Println("CurrentPath: ", currentPath)
@@ -79,23 +82,51 @@ func main() {
                 for _, jsonEntry := range jsonData[key] {
                     for name, booth := range jsonEntry {
                         if entry.IsDir() && strings.Contains(name, entry.Name()) {
-                            url := booth.Src
-                            resp, err := http.Get(url)
-                            if err != nil {
-                                fmt.Println("上手くダウンロードができませんでした")
-                                return
-                            }
-                            defer resp.Body.Close()
+                            //サムネイル画像が保存されているフォルダがあるか確認する
+                            isThumbnailFoldar := filepath.Join(currentImagesPath, booth.Id)
+                            _, err := os.Stat(isThumbnailFoldar)
 
-                            out, err := os.Create(filepath.Join(currentImagesPath, booth.Id + ".jpg"))
+                            //サムネイル画像が存在しない場合は、ダウンロードする
                             if err != nil {
-                                fmt.Println("上手く保存ができませんでした")
-                                return
-                            }
-                            defer out.Close()
+                                inAvatersFolder := filepath.Join(currentAvatersPath, booth.Id)
+                                os.Mkdir(inAvatersFolder, 0750)
 
-                            io.Copy(out, resp.Body)
-                            fmt.Printf("名前: %s, ID: %s, SRC: %s\n", name, booth.Id, booth.Src)
+                                url := booth.Src
+                                resp, err := http.Get(url)
+                                if err != nil {
+                                    fmt.Println("上手くダウンロードができませんでした")
+                                    return
+                                }
+                                defer resp.Body.Close()
+
+                                var buffer bytes.Buffer
+                                buffer.ReadFrom(resp.Body)
+
+                                data1 := bytes.NewReader(buffer.Bytes())
+                                data2 := bytes.NewReader(buffer.Bytes())
+
+                                jpgThumbnail := filepath.Join(currentImagesPath, booth.Id + ".jpg")
+                                out, err := os.Create(jpgThumbnail)
+                                if err != nil {
+                                    fmt.Println("上手く保存ができませんでした")
+                                    return
+                                }
+                                defer out.Close()
+
+                                icoThumbnail := filepath.Join(inAvatersFolder, booth.Id + ".ico")
+                                out2, err := os.Create(icoThumbnail)
+                                if err != nil {
+                                    fmt.Println("上手く保存ができませんでした")
+                                    return
+                                }
+                                defer out2.Close()
+
+                                io.Copy(out, data1)
+                                io.Copy(out2, data2)
+                                fmt.Printf("名前: %s, ID: %s, SRC: %s\n", name, booth.Id, booth.Src)
+
+                                //アバター画像が保存されているフォルダがあるか確認する
+                            }
                         }
                     }
                 }
