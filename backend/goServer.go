@@ -3,11 +3,14 @@ package main
 import (
     //"github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
+    //"github.com/PuerkitoBio/goquery"
+
     "path/filepath"
     "net/http"
     "strings"
     "fmt"
     "log"
+    "io"
     "os"
 )
 
@@ -33,6 +36,10 @@ func main() {
         log.Fatal(err)
     }
     DownloadPath := filepath.Join(home, "Downloads")
+    currentPath, _ := os.Getwd()
+    currentImagesPath := filepath.Join(currentPath, "Images")
+
+    fmt.Println("CurrentPath: ", currentPath)
     fmt.Println("DownloadPath: ", DownloadPath)
     /*
     r.Use(cors.New(cors.Config{
@@ -66,19 +73,28 @@ func main() {
         if err != nil {
             log.Fatal(err)
         }
-        /* 
-        for _, entry := range entries {
-            if entry.IsDir() {
-                fmt.Println("ディレクトリ: ", entry.Name())
-            }
-        }
-        */
         
         for _, entry := range entries {
             for key := range jsonData {
                 for _, jsonEntry := range jsonData[key] {
                     for name, booth := range jsonEntry {
                         if entry.IsDir() && strings.Contains(name, entry.Name()) {
+                            url := booth.Src
+                            resp, err := http.Get(url)
+                            if err != nil {
+                                fmt.Println("上手くダウンロードができませんでした")
+                                return
+                            }
+                            defer resp.Body.Close()
+
+                            out, err := os.Create(filepath.Join(currentImagesPath, booth.Id + ".jpg"))
+                            if err != nil {
+                                fmt.Println("上手く保存ができませんでした")
+                                return
+                            }
+                            defer out.Close()
+
+                            io.Copy(out, resp.Body)
                             fmt.Printf("名前: %s, ID: %s, SRC: %s\n", name, booth.Id, booth.Src)
                         }
                     }
