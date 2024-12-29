@@ -2,18 +2,23 @@ package main
 
 import (
 	//"github.com/gin-contrib/cors"
-	"bytes"
-
 	"github.com/gin-gonic/gin"
-	//"github.com/PuerkitoBio/goquery"
 
 	"fmt"
+	"image"
+    _ "image/jpeg"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
+
+	"gopkg.in/ini.v1"
+    "github.com/Kodeworks/golang-image-ico"
+    "golang.org/x/image/draw"
 )
 
 type Root map[string][]map[string]Booth
@@ -99,34 +104,68 @@ func main() {
                                 }
                                 defer resp.Body.Close()
 
-                                var buffer bytes.Buffer
-                                buffer.ReadFrom(resp.Body)
-
-                                data1 := bytes.NewReader(buffer.Bytes())
-                                data2 := bytes.NewReader(buffer.Bytes())
-
+                                //サムネイル画像を保存する
                                 jpgThumbnail := filepath.Join(currentImagesPath, booth.Id + ".jpg")
+
                                 out, err := os.Create(jpgThumbnail)
                                 if err != nil {
                                     fmt.Println("上手く保存ができませんでした")
                                     return
                                 }
                                 defer out.Close()
+                                io.Copy(out, resp.Body)
 
-                                icoThumbnail := filepath.Join(inAvatersFolder, booth.Id + ".ico")
-                                out2, err := os.Create(icoThumbnail)
+                                icoThumbnail := filepath.Join(currentAvatersPath, booth.Id)
+                                icoThumbnail = filepath.Join(icoThumbnail, booth.Id + ".ico")
+
+                                //icoファイルを作成する
+                                file, err := os.Open(jpgThumbnail)
+                                if err != nil {
+                                    fmt.Println("上手く開けませんでした")
+                                    return
+                                }
+                                defer file.Close()
+
+                                img, _, err := image.Decode(file)
+                                if err != nil {
+                                    fmt.Println("上手くデコードできませんでした", err)
+                                    return
+                                }
+
+                                resizedImg := image.NewRGBA(image.Rect(0, 0, 256, 256))
+                                draw.NearestNeighbor.Scale(resizedImg, resizedImg.Bounds(), img, img.Bounds(), draw.Over, nil)
+
+                                icoFile, err := os.Create(icoThumbnail)
                                 if err != nil {
                                     fmt.Println("上手く保存ができませんでした")
                                     return
                                 }
-                                defer out2.Close()
 
-                                io.Copy(out, data1)
-                                io.Copy(out2, data2)
+                                err = ico.Encode(icoFile, resizedImg)
+                                if err != nil {
+                                    fmt.Println("上手く保存ができませんでした")
+                                    return
+                                }
+
                                 fmt.Printf("名前: %s, ID: %s, SRC: %s\n", name, booth.Id, booth.Src)
+                                
+                                //iniファイルに書き込む
+                                desktopIniPath := filepath.Join(inAvatersFolder, "desktop.ini")
 
-                                //アバター画像が保存されているフォルダがあるか確認する
+                                cfg := ini.Empty()
+                                cfg.Section(".ShellClassInfo").Key("IconResource").SetValue(fmt.Sprintf("\"%s.ico\",0", booth.Id))
+                                err = cfg.SaveTo(desktopIniPath)
+                                if err != nil {
+                                    fmt.Println("上手く保存ができませんでした")
+                                    return
+                                }
+
+                                exec.Command("attrib", "+h", desktopIniPath).Run()
+                                exec.Command("attrib", "+s", inAvatersFolder).Run()
+                                exec.Command("attrib", "+h", icoThumbnail).Run()
                             }
+                        //サーバーへの負荷対策
+                        time.Sleep(1 * time.Second)
                         }
                     }
                 }
