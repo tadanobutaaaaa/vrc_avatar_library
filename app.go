@@ -17,5 +17,9 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
+
+func (a *App) domready(ctx context.Context) {
+	GoServer()
+}
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods

@@ -5,7 +5,6 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	"fmt"
 )
 
 //go:embed all:frontend/dist
@@ -26,7 +25,8 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
+		OnStartup:       app.startup,
+		OnDomReady: app.domready,
 		Bind: []interface{}{
 			app,
 		},
@@ -35,6 +35,4 @@ func main() {
 	if err != nil {
 		println("Error:", err.Error())
 	}
-
-	defer fmt.Println("プログラムが終了しました")
 }

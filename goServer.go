@@ -1,12 +1,12 @@
 package main
 
 import (
-	//"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"fmt"
 	"image"
-    _ "image/jpeg"
+	_ "image/jpeg"
 	"io"
 	"log"
 	"net/http"
@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Kodeworks/golang-image-ico"
+	"golang.org/x/image/draw"
 	"gopkg.in/ini.v1"
-    "github.com/Kodeworks/golang-image-ico"
-    "golang.org/x/image/draw"
 )
 
 type Root map[string][]map[string]Booth
@@ -28,15 +28,8 @@ type Booth struct {
     Src  string `json:"src"`
 }
 
-func main() {
+func GoServer() {
     r := gin.Default()
-
-    if _, err := os.Stat("Avaters"); os.IsNotExist(err) {
-        os.Mkdir("Avaters", 0750)
-    }
-    if _, err := os.Stat("Images"); os.IsNotExist(err) {
-        os.Mkdir("Images", 0750)
-    }
 
     home, err := os.UserHomeDir()
     if err != nil {
@@ -49,22 +42,30 @@ func main() {
 
     fmt.Println("CurrentPath: ", currentPath)
     fmt.Println("DownloadPath: ", DownloadPath)
-    /*
+
     r.Use(cors.New(cors.Config{
         AllowOrigins: []string{
             //plasmo(Google拡張機能)からのみリクエストを受け付けれるようにする
             //どのurlからリクエストを送るか特定する
-            //例 "https://example.com"
+            "https://accounts.booth.pm",
         },
         AllowMethods: []string{
             "POST",
+            "OPTIONS",
+        },
+        AllowHeaders: []string{
+            "Content-Type",
         },
     }))
-    */
 
     r.POST("/send/fileImages", func(c *gin.Context) {
         //保存する用のフォルダがない場合、フォルダを作成する
-        
+        if _, err := os.Stat("Avaters"); os.IsNotExist(err) {
+            os.Mkdir("Avaters", 0750)
+        }
+        if _, err := os.Stat("Images"); os.IsNotExist(err) {
+            os.Mkdir("Images", 0750)
+        }
 
         var jsonData Root
 
@@ -74,8 +75,6 @@ func main() {
             })
             return
         }
-
-        
 
         entries, err := os.ReadDir(DownloadPath)
         if err != nil {
@@ -88,12 +87,11 @@ func main() {
                     for name, booth := range jsonEntry {
                         if entry.IsDir() && strings.Contains(name, entry.Name()) {
                             //サムネイル画像が保存されているフォルダがあるか確認する
-                            isThumbnailFoldar := filepath.Join(currentImagesPath, booth.Id)
-                            _, err := os.Stat(isThumbnailFoldar)
-
+                            inAvatersFolder := filepath.Join(currentAvatersPath, booth.Id)
+                            _, err := os.Stat(inAvatersFolder)
+                            
                             //サムネイル画像が存在しない場合は、ダウンロードする
                             if err != nil {
-                                inAvatersFolder := filepath.Join(currentAvatersPath, booth.Id)
                                 os.Mkdir(inAvatersFolder, 0750)
 
                                 url := booth.Src
@@ -164,6 +162,8 @@ func main() {
                                 exec.Command("attrib", "+s", inAvatersFolder).Run()
                                 exec.Command("attrib", "+h", icoThumbnail).Run()
                             }
+                        os.Rename(filepath.Join(DownloadPath, entry.Name()), filepath.Join(inAvatersFolder, entry.Name()))
+
                         //サーバーへの負荷対策
                         time.Sleep(1 * time.Second)
                         }
