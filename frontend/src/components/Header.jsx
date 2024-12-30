@@ -1,12 +1,10 @@
-import { Icon, 
-    useColorMode, 
-    IconButton, 
+import { Icon,
     Flex, 
     HStack, 
     Box, 
     Heading,
 } from '@chakra-ui/react';
-import { MoonIcon, SunIcon, SettingsIcon, InfoIcon, QuestionIcon } from '@chakra-ui/icons';
+import { BrowserOpenURL } from "../../wailsjs/runtime/runtime"
 import { Link } from "react-router-dom";
 
 function Header () {
@@ -19,19 +17,14 @@ function Header () {
             </Box>
             
             <HStack spacing="25px" position="absolute" right={7}>
-                {/* 
-                <IconButton 
-                aria-label='Toggle theme'
-                icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-                onClick={toggleColorMode}
-                />
-                */}
+                {/*
                 <Link to="/manual">
                     <Icon as={InfoIcon} boxSize={6}/>
                 </Link>
-                <Link to="/help">
+                <Link href = "https://docs.google.com/forms/d/e/1FAIpQLSeo5KjaIfDgXkJ_2va2N9iDJV2kmRXVwQpklYECFi0E4jHnDA/viewform">
                     <Icon as={QuestionIcon} boxSize={6}/>
                 </Link>
+                */}
             </HStack>
         </Flex>
     )
