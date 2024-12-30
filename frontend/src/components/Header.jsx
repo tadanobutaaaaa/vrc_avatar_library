@@ -6,6 +6,7 @@ import { Icon,
 } from '@chakra-ui/react';
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime"
 import { Link } from "react-router-dom";
+import Page from './coloModeButton';
 
 function Header () {
     // const { colorMode, toggleColorMode } = useColorMode()
@@ -25,6 +26,7 @@ function Header () {
                     <Icon as={QuestionIcon} boxSize={6}/>
                 </Link>
                 */}
+                <Page />
             </HStack>
         </Flex>
     )
