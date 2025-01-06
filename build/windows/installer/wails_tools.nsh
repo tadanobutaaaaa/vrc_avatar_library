@@ -8,7 +8,7 @@
     !define INFO_PROJECTNAME "VRC-Avater-Library"
 !endif
 !ifndef INFO_COMPANYNAME
-    !define INFO_COMPANYNAME "VRC-Avater-Library"
+    !define INFO_COMPANYNAME "tadanobutaaaaa"
 !endif
 !ifndef INFO_PRODUCTNAME
     !define INFO_PRODUCTNAME "VRC-Avater-Library"
@@ -17,7 +17,7 @@
     !define INFO_PRODUCTVERSION "1.0.0"
 !endif
 !ifndef INFO_COPYRIGHT
-    !define INFO_COPYRIGHT "Copyright........."
+    !define INFO_COPYRIGHT "© 2025 tadanobutaaaaa. All rights reserved."
 !endif
 !ifndef PRODUCT_EXECUTABLE
     !define PRODUCT_EXECUTABLE "${INFO_PROJECTNAME}.exe"
@@ -228,9 +228,14 @@ RequestExecutionLevel "${REQUEST_EXECUTION_LEVEL}"
 !macro wails.associateCustomProtocols
     ; Create custom protocols associations
     
+      !insertmacro CUSTOM_PROTOCOL_ASSOCIATE "VRC-Avater-Library" "Boothで買ったVRChat関連のフォルダにサムネイルをつけて管理するアプリ" "$INSTDIR\${PRODUCT_EXECUTABLE},0" "$INSTDIR\${PRODUCT_EXECUTABLE} $\"%1$\""
+
+    
 !macroend
 
 !macro wails.unassociateCustomProtocols
     ; Delete app custom protocol associations
+    
+      !insertmacro CUSTOM_PROTOCOL_UNASSOCIATE "VRC-Avater-Library"
     
 !macroend

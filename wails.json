@@ -11,6 +11,11 @@
     "email": "tadanobutaaaaa@gmail.com"
   },
   "info": {
+    "companyName": "tadanobutaaaaa",
+    "productName": "VRC-Avater-Library",
+    "productVersion": "1.0.0",
+    "copyright": "© 2025 tadanobutaaaaa. All rights reserved.",
+    "comments": "Built using Wails (https://wails.io)",
     "protocols": [
       {
         "scheme": "VRC-Avater-Library",
