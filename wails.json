@@ -9,5 +9,13 @@
   "author": {
     "name": "tadanobutaaaaa",
     "email": "tadanobutaaaaa@gmail.com"
+  },
+  "info": {
+    "protocols": [
+      {
+        "scheme": "VRC-Avater-Library",
+        "description": "Boothで買ったVRChat関連のフォルダにサムネイルをつけて管理するアプリ"
+      }
+    ]
   }
 }
