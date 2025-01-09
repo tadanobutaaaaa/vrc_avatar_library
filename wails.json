@@ -18,7 +18,7 @@
     "comments": "Built using Wails (https://wails.io)",
     "protocols": [
       {
-        "scheme": "VRC-Avater-Library",
+        "scheme": "vrc-avater-library",
         "description": "Boothで買ったVRChat関連のフォルダにサムネイルをつけて管理するアプリ"
       }
     ]
