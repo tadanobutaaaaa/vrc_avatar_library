@@ -37,7 +37,7 @@ func GoServer() {
     }
     DownloadPath := filepath.Join(home, "Downloads")
     currentPath, _ := os.Getwd()
-    currentAvatersPath := filepath.Join(currentPath, "Avaters")
+    currentAvatarsPath := filepath.Join(currentPath, "Avatars")
     currentImagesPath := filepath.Join(currentPath, "Images")
 
     fmt.Println("CurrentPath: ", currentPath)
@@ -67,8 +67,8 @@ func GoServer() {
 
     r.POST("/send/fileImages", func(c *gin.Context) {
         //保存する用のフォルダがない場合、フォルダを作成する
-        if _, err := os.Stat("Avaters"); os.IsNotExist(err) {
-            os.Mkdir("Avaters", 0750)
+        if _, err := os.Stat("Avatars"); os.IsNotExist(err) {
+            os.Mkdir("Avatars", 0750)
         }
         if _, err := os.Stat("Images"); os.IsNotExist(err) {
             os.Mkdir("Images", 0750)
@@ -94,12 +94,12 @@ func GoServer() {
                     for name, booth := range jsonEntry {
                         if entry.IsDir() && strings.Contains(name, entry.Name()) {
                             //サムネイル画像が保存されているフォルダがあるか確認する
-                            inAvatersFolder := filepath.Join(currentAvatersPath, booth.Id)
-                            _, err := os.Stat(inAvatersFolder)
+                            inAvatarsFolder := filepath.Join(currentAvatarsPath, booth.Id)
+                            _, err := os.Stat(inAvatarsFolder)
                             
                             //サムネイル画像が存在しない場合は、ダウンロードする
                             if err != nil {
-                                os.Mkdir(inAvatersFolder, 0750)
+                                os.Mkdir(inAvatarsFolder, 0750)
 
                                 url := booth.Src
                                 resp, err := http.Get(url)
@@ -120,7 +120,7 @@ func GoServer() {
                                 defer out.Close()
                                 io.Copy(out, resp.Body)
 
-                                icoThumbnail := filepath.Join(currentAvatersPath, booth.Id)
+                                icoThumbnail := filepath.Join(currentAvatarsPath, booth.Id)
                                 icoThumbnail = filepath.Join(icoThumbnail, booth.Id + ".ico")
 
                                 //icoファイルを作成する
@@ -155,7 +155,7 @@ func GoServer() {
                                 fmt.Printf("名前: %s, ID: %s, SRC: %s\n", name, booth.Id, booth.Src)
                                 
                                 //iniファイルに書き込む
-                                desktopIniPath := filepath.Join(inAvatersFolder, "desktop.ini")
+                                desktopIniPath := filepath.Join(inAvatarsFolder, "desktop.ini")
 
                                 cfg := ini.Empty()
                                 cfg.Section(".ShellClassInfo").Key("IconResource").SetValue(fmt.Sprintf("\"%s.ico\",0", booth.Id))
@@ -166,10 +166,10 @@ func GoServer() {
                                 }
 
                                 exec.Command("attrib", "+h", desktopIniPath).Run()
-                                exec.Command("attrib", "+s", inAvatersFolder).Run()
+                                exec.Command("attrib", "+s", inAvatarsFolder).Run()
                                 exec.Command("attrib", "+h", icoThumbnail).Run()
                             }
-                        os.Rename(filepath.Join(DownloadPath, entry.Name()), filepath.Join(inAvatersFolder, entry.Name()))
+                        os.Rename(filepath.Join(DownloadPath, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name()))
 
                         //サーバーへの負荷対策
                         time.Sleep(1 * time.Second)
@@ -189,6 +189,7 @@ func GoServer() {
         c.JSON(http.StatusOK, gin.H{
             "response": jsonData,
         })
+        fmt.Println(jsonData)
     })
 
     r.Run(":8080")

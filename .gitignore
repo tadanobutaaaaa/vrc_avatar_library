@@ -2,5 +2,5 @@ build/bin
 node_modules
 frontend/dist
 Images
-Avaters
+Avatars
 .env

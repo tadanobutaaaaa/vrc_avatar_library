@@ -16,7 +16,7 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "VRC-Avater-Library",
+		Title:  "VRC-Avatar-Library",
 		Width:  1024,
 		Height: 768,
 		MinWidth: 1024,
