@@ -45,8 +45,6 @@ func GoServer() {
 
     r.Use(cors.New(cors.Config{
         AllowOrigins: []string{
-            //plasmo(Google拡張機能)からのみリクエストを受け付けれるようにする
-            //どのurlからリクエストを送るか特定する
             "https://accounts.booth.pm",
         },
         AllowMethods: []string{
@@ -56,7 +54,16 @@ func GoServer() {
         AllowHeaders: []string{
             "Content-Type",
         },
+        AllowOriginFunc: func(origin string) bool {
+            return origin == "chrome-extension://hdfbpdpcecklifkgfdjegflfigfmjfib"
+        },
     }))
+
+    r.GET("/health", func(c *gin.Context) {
+        c.JSON(http.StatusOK, gin.H{
+            "status": true,
+        })
+    })
 
     r.POST("/send/fileImages", func(c *gin.Context) {
         //保存する用のフォルダがない場合、フォルダを作成する
@@ -184,5 +191,5 @@ func GoServer() {
         })
     })
 
-    r.Run()
+    r.Run(":8080")
 }
