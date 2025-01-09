@@ -10,7 +10,7 @@ function Header () {
     return (
         <Flex alignItems="center" justifyContent="center" bg="teal.400" p={5} position="relative">
             <Box textAlign="center">
-                <Heading size="2xl">VRC Avater Library</Heading>
+                <Heading size="2xl">VRC Avatar Library</Heading>
             </Box>
             
             <HStack position="absolute" left={5}>
