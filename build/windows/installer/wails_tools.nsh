@@ -5,13 +5,13 @@
 !include "FileFunc.nsh"
 
 !ifndef INFO_PROJECTNAME
-    !define INFO_PROJECTNAME "VRC-Avater-Library"
+    !define INFO_PROJECTNAME "VRC-Avatar-Library"
 !endif
 !ifndef INFO_COMPANYNAME
     !define INFO_COMPANYNAME "tadanobutaaaaa"
 !endif
 !ifndef INFO_PRODUCTNAME
-    !define INFO_PRODUCTNAME "VRC-Avater-Library"
+    !define INFO_PRODUCTNAME "VRC-Avatar-Library"
 !endif
 !ifndef INFO_PRODUCTVERSION
     !define INFO_PRODUCTVERSION "1.0.0"
@@ -228,7 +228,7 @@ RequestExecutionLevel "${REQUEST_EXECUTION_LEVEL}"
 !macro wails.associateCustomProtocols
     ; Create custom protocols associations
     
-      !insertmacro CUSTOM_PROTOCOL_ASSOCIATE "vrc-avater-library" "Boothで買ったVRChat関連のフォルダにサムネイルをつけて管理するアプリ" "$INSTDIR\${PRODUCT_EXECUTABLE},0" "$INSTDIR\${PRODUCT_EXECUTABLE} $\"%1$\""
+      !insertmacro CUSTOM_PROTOCOL_ASSOCIATE "vrc-avatar-library" "Boothで買ったVRChat関連のフォルダにサムネイルをつけて管理するアプリ" "$INSTDIR\${PRODUCT_EXECUTABLE},0" "$INSTDIR\${PRODUCT_EXECUTABLE} $\"%1$\""
 
     
 !macroend
@@ -236,6 +236,6 @@ RequestExecutionLevel "${REQUEST_EXECUTION_LEVEL}"
 !macro wails.unassociateCustomProtocols
     ; Delete app custom protocol associations
     
-      !insertmacro CUSTOM_PROTOCOL_UNASSOCIATE "vrc-avater-library"
+      !insertmacro CUSTOM_PROTOCOL_UNASSOCIATE "vrc-avatar-library"
     
 !macroend
