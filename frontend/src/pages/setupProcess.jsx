@@ -6,6 +6,15 @@ import { IconButton, Flex, Text, Box, Code } from "@chakra-ui/react";
 
 function App() {
     const [searchFolder, setSearchFolder] = useState(`C:\\Users\\youya\\Downloads`)
+    const SelectFolderProcess = async () => {
+        SelectFolder().then((res) => {
+            if (res !== "Error") {
+                setSearchFolder(res)
+            }
+        })
+    }
+
+
     return (
         <>
             <Header />
@@ -15,7 +24,7 @@ function App() {
                     <Flex gap="6px" alignItems="center">
                         <Text>現在のフォルダ:</Text><Code>{searchFolder}</Code>
                         <IconButton 
-                                onClick={() => {SelectFolder()}}
+                                onClick={() => {SelectFolderProcess()}}
                                 variant="ghost"
                                 aria-label='Toggle color mode'
                             >

@@ -66,6 +66,10 @@ func (a *App) SelectFolder() string {
 		fmt.Println("フォルダを選択する際にエラーが発生しました: ",err)
 	}	
 
+	if result == "" {
+		return "Error"
+	}
+
 	initialConfig := Config{
 		SearchFolder: result,
 	}
