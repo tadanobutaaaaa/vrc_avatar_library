@@ -3,6 +3,7 @@ import { CircleHelp, Info, Settings, House } from 'lucide-react';
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import { IconButton } from "@chakra-ui/react"; 
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Page from './coloModeButton';
 
 function Header () {
@@ -10,7 +11,9 @@ function Header () {
     return (
         <Flex alignItems="center" justifyContent="center" bg="teal.400" p={5} position="relative">
             <Box textAlign="center">
-                <Heading size="2xl">VRC Avatar Library</Heading>
+                <Link to="/">
+                    <Heading size="2xl">VRC Avatar Library</Heading>
+                </Link>
             </Box>
             
             <HStack position="absolute" left={5}>
