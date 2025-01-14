@@ -21,6 +21,8 @@ func main() {
 		Height: 768,
 		MinWidth: 1024,
 		MinHeight: 768,
+		MaxWidth: 1024,
+		MaxHeight: 768,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
