@@ -3,4 +3,5 @@ node_modules
 frontend/dist
 Images
 Avatars
+Config
 .env
