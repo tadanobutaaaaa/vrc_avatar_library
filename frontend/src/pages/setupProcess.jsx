@@ -1,13 +1,29 @@
-import React from 'react';
+import React, { useState } from "react";
 import Header from '../components/Header';
-import { Button } from "@/components/ui/button"
 import { SelectFolder } from '../../wailsjs/go/main/App';
+import { FolderSearch } from 'lucide-react';
+import { IconButton, Flex, Text, Box, Code } from "@chakra-ui/react"; 
 
 function App() {
+    const [searchFolder, setSearchFolder] = useState(`C:\\Users\\youya\\Downloads`)
     return (
         <>
             <Header />
-            <Button onClick={() => SelectFolder()}>ディレクトリを選択してください</Button>
+            <Box ml="50px" mt="50px">
+                <Box background="#9DC8C8" w="85%" p="20px" borderRadius="md">
+                    <Text textStyle="2xl" mu="10px" mb="5px" fontWeight="semibold">検索フォルダ</Text>
+                    <Flex gap="6px" alignItems="center">
+                        <Text>現在のフォルダ:</Text><Code>{searchFolder}</Code>
+                        <IconButton 
+                                onClick={() => {SelectFolder()}}
+                                variant="ghost"
+                                aria-label='Toggle color mode'
+                            >
+                            <FolderSearch />
+                        </IconButton>
+                    </Flex>
+                </Box>
+            </Box>
         </>
     )
 }
