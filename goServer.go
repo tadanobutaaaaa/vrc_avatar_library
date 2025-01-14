@@ -1,9 +1,6 @@
 package main
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-
 	"fmt"
 	"image"
 	_ "image/jpeg"
@@ -14,9 +11,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
-	"github.com/Kodeworks/golang-image-ico"
+	ico "github.com/Kodeworks/golang-image-ico"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/image/draw"
 	"gopkg.in/ini.v1"
 )
@@ -40,8 +40,10 @@ func GoServer() {
     currentAvatarsPath := filepath.Join(currentPath, "Avatars")
     currentImagesPath := filepath.Join(currentPath, "Images")
 
-    fmt.Println("CurrentPath: ", currentPath)
-    fmt.Println("DownloadPath: ", DownloadPath)
+    err = r.SetTrustedProxies(nil)
+	if err != nil {
+		panic(err)
+	}
 
     r.Use(cors.New(cors.Config{
         AllowOrigins: []string{
@@ -68,10 +70,14 @@ func GoServer() {
     r.POST("/send/fileImages", func(c *gin.Context) {
         //保存する用のフォルダがない場合、フォルダを作成する
         if _, err := os.Stat("Avatars"); os.IsNotExist(err) {
-            os.Mkdir("Avatars", 0750)
+            if err := os.Mkdir("Avatars", 0750); err != nil {
+                return
+            }
         }
         if _, err := os.Stat("Images"); os.IsNotExist(err) {
-            os.Mkdir("Images", 0750)
+            if err := os.Mkdir("Images", 0750); err != nil {
+                return
+            }
         }
 
         var jsonData Root
@@ -99,12 +105,13 @@ func GoServer() {
                             
                             //サムネイル画像が存在しない場合は、ダウンロードする
                             if err != nil {
-                                os.Mkdir(inAvatarsFolder, 0750)
+                                if err := os.Mkdir(inAvatarsFolder, 0750); err != nil {
+                                    return
+                                }
 
                                 url := booth.Src
                                 resp, err := http.Get(url)
                                 if err != nil {
-                                    fmt.Println("上手くダウンロードができませんでした")
                                     return
                                 }
                                 defer resp.Body.Close()
@@ -114,7 +121,6 @@ func GoServer() {
 
                                 out, err := os.Create(jpgThumbnail)
                                 if err != nil {
-                                    fmt.Println("上手く保存ができませんでした")
                                     return
                                 }
                                 defer out.Close()
@@ -126,14 +132,12 @@ func GoServer() {
                                 //icoファイルを作成する
                                 file, err := os.Open(jpgThumbnail)
                                 if err != nil {
-                                    fmt.Println("上手く開けませんでした")
                                     return
                                 }
                                 defer file.Close()
 
                                 img, _, err := image.Decode(file)
                                 if err != nil {
-                                    fmt.Println("上手くデコードできませんでした", err)
                                     return
                                 }
 
@@ -142,34 +146,44 @@ func GoServer() {
 
                                 icoFile, err := os.Create(icoThumbnail)
                                 if err != nil {
-                                    fmt.Println("上手く保存ができませんでした")
                                     return
                                 }
 
                                 err = ico.Encode(icoFile, resizedImg)
                                 if err != nil {
-                                    fmt.Println("上手く保存ができませんでした")
                                     return
                                 }
 
-                                fmt.Printf("名前: %s, ID: %s, SRC: %s\n", name, booth.Id, booth.Src)
-                                
                                 //iniファイルに書き込む
                                 desktopIniPath := filepath.Join(inAvatarsFolder, "desktop.ini")
 
                                 cfg := ini.Empty()
                                 cfg.Section(".ShellClassInfo").Key("IconResource").SetValue(fmt.Sprintf("\"%s.ico\",0", booth.Id))
-                                err = cfg.SaveTo(desktopIniPath)
-                                if err != nil {
-                                    fmt.Println("上手く保存ができませんでした")
+                                if err := cfg.SaveTo(desktopIniPath); err != nil {
                                     return
                                 }
 
-                                exec.Command("attrib", "+h", desktopIniPath).Run()
-                                exec.Command("attrib", "+s", inAvatarsFolder).Run()
-                                exec.Command("attrib", "+h", icoThumbnail).Run()
+                                cmd := exec.Command("attrib", "+h", desktopIniPath)
+                                cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+                                if err := cmd.Run(); err != nil {
+                                    return
+                                }
+
+                                cmd = exec.Command("attrib", "+s", inAvatarsFolder)
+                                cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+                                if err := cmd.Run(); err != nil {
+                                    return
+                                }
+
+                                cmd = exec.Command("attrib", "+h", icoThumbnail)
+                                cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+                                if err := cmd.Run(); err != nil {
+                                    return
+                                }
                             }
-                        os.Rename(filepath.Join(DownloadPath, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name()))
+                        if err := os.Rename(filepath.Join(DownloadPath, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
+                            return
+                        }
 
                         //サーバーへの負荷対策
                         time.Sleep(1 * time.Second)
@@ -189,7 +203,6 @@ func GoServer() {
         c.JSON(http.StatusOK, gin.H{
             "response": jsonData,
         })
-        fmt.Println(jsonData)
     })
 
     r.Run(":8080")
