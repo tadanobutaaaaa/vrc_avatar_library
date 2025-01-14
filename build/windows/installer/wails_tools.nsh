@@ -8,7 +8,7 @@
     !define INFO_PROJECTNAME "VRC-Avatar-Library"
 !endif
 !ifndef INFO_COMPANYNAME
-    !define INFO_COMPANYNAME "tadanobutaaaaa"
+    !define INFO_COMPANYNAME "tadanoShop"
 !endif
 !ifndef INFO_PRODUCTNAME
     !define INFO_PRODUCTNAME "VRC-Avatar-Library"
