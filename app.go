@@ -103,7 +103,6 @@ func (a *App) GetSearchFolder() string {
 	if err := decoder.Decode(&config); err != nil {
 		fmt.Println("設定ファイルの読み込みに失敗しました:", err)
 	}
-	fmt.Println(config.SearchFolder)
 
 	return config.SearchFolder
 }
