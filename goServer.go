@@ -5,11 +5,11 @@ import (
 	"image"
 	_ "image/jpeg"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
-    "encoding/json"
 	"strings"
 	"syscall"
 	"time"
@@ -28,30 +28,18 @@ type Booth struct {
     Src  string `json:"src"`
 }
 
-type Setting struct {
-    SearchFolder string `json:"searchFolder"`
-}
-
 func GoServer() {
     r := gin.Default()
 
+    home, err := os.UserHomeDir()
+    if err != nil {
+        log.Fatal(err)
+    }
+    DownloadPath := filepath.Join(home, "Downloads")
     currentPath, _ := os.Getwd()
     currentAvatarsPath := filepath.Join(currentPath, "Avatars")
     currentImagesPath := filepath.Join(currentPath, "Images")
 
-    file, err := os.Open("./Config/config.json")
-    if err != nil {
-        fmt.Println("設定ファイルが見つかりませんでした: ",err)
-    }
-    defer file.Close()
-
-    var config Setting
-    decoder := json.NewDecoder(file)
-    if err := decoder.Decode(&config); err != nil {
-        fmt.Println("設定ファイルの読み込みに失敗しました: ",err)
-    }
-
-    searchFolder := config.SearchFolder
     err = r.SetTrustedProxies(nil)
 	if err != nil {
 		panic(err)
@@ -101,9 +89,9 @@ func GoServer() {
             return
         }
 
-        entries, err := os.ReadDir(searchFolder)
+        entries, err := os.ReadDir(DownloadPath)
         if err != nil {
-            fmt.Println("ディレクトリの読み込みに失敗しました: ",err)
+            log.Fatal(err)
         }
         
         for _, entry := range entries {
@@ -193,7 +181,7 @@ func GoServer() {
                                     return
                                 }
                             }
-                        if err := os.Rename(filepath.Join(searchFolder, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
+                        if err := os.Rename(filepath.Join(DownloadPath, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
                             return
                         }
 

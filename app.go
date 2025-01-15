@@ -32,7 +32,7 @@ func (a *App) startup(ctx context.Context) {
 	}
 	if _, err := os.Stat("./Config/config.json"); os.IsNotExist(err) {
 		home, err := os.UserHomeDir()
-		if err != nil {
+		if (err != nil) {
 			fmt.Println("ユーザーホームディレクトリを取得できませんでした: ",err)
 		}
 		DownloadPath := filepath.Join(home, "Downloads")
@@ -89,5 +89,24 @@ func (a *App) SelectFolder() string {
 	fmt.Println(result)
 	return result
 }
+
+// 新しい関数を追加
+func (a *App) GetSearchFolder() string {
+	file, err := os.Open("./Config/config.json")
+	if err != nil {
+		fmt.Println("設定ファイルが見つかりませんでした:", err)
+	}
+	defer file.Close()
+
+	var config Config
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&config); err != nil {
+		fmt.Println("設定ファイルの読み込みに失敗しました:", err)
+	}
+	fmt.Println(config.SearchFolder)
+
+	return config.SearchFolder
+}
+
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
