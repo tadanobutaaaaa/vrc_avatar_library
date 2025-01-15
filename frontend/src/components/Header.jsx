@@ -4,7 +4,6 @@ import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import { IconButton } from "@chakra-ui/react"; 
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import Page from './coloModeButton';
 
 function Header () {
     const navigate = useNavigate()
@@ -52,7 +51,6 @@ function Header () {
                 >
                     <Settings/>
                 </IconButton>
-                <Page />
             </HStack>
         </Flex>
     )
