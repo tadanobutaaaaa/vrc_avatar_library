@@ -1,7 +1,6 @@
-import { Flex, HStack, Box, Heading, } from '@chakra-ui/react';
+import { Flex, HStack, Box, Heading, IconButton } from '@chakra-ui/react';
 import { CircleHelp, Info, Settings, House } from 'lucide-react';
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
-import { IconButton } from "@chakra-ui/react"; 
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
@@ -19,7 +18,7 @@ function Header () {
                 <IconButton
                     onClick={() => navigate("/") }
                     variant="ghost"
-                    aria-label='Toggle color mode'
+                    aria-label='Open home'
                 >
                     <House/>
                 </IconButton>
@@ -29,7 +28,7 @@ function Header () {
                 <IconButton
                     onClick={() => navigate("/manual")}
                     variant="ghost"
-                    aria-label='Toggle color mode'
+                    aria-label='Open self-introduction'
                 >
                     <Info 
                         variant="ghost"
@@ -40,14 +39,14 @@ function Header () {
                 <IconButton 
                     onClick={() => {BrowserOpenURL("https://docs.google.com/forms/d/e/1FAIpQLSeo5KjaIfDgXkJ_2va2N9iDJV2kmRXVwQpklYECFi0E4jHnDA/viewform")}}
                     variant="ghost"
-                    aria-label='Toggle color mode'
+                    aria-label='Open Google Form'
                 >
                     <CircleHelp/>
                 </IconButton>
                 <IconButton
                     onClick={() => navigate("/setupProcess")}
                     variant="ghost"
-                    aria-label='Toggle color mode'
+                    aria-label='Open settings'
                 >
                     <Settings/>
                 </IconButton>
