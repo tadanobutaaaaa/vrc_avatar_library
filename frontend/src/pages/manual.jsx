@@ -32,7 +32,7 @@ function App() {
                         <Flex justifyContent="center">
                             <Box>
                                 <Image 
-                                    src="../../public/images/icon.jpg" 
+                                    src="/images/icon.jpg" 
                                     boxSize="260px"
                                     borderRadius="full"
                                     border="1px solid gray"
