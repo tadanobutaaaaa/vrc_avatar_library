@@ -1,7 +1,7 @@
 import { Flex, HStack, Box, Heading, IconButton } from '@chakra-ui/react';
 import { toaster } from "@/components/ui/toaster";
 
-import { CircleHelp, Info, Settings, House, Folder } from 'lucide-react';
+import { CircleHelp, CircleUserRound, Settings, House, Folder } from 'lucide-react';
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import { OpenFolder } from "../../wailsjs/go/main/App";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +17,7 @@ function Header () {
                     toaster.create({
                         title: "Avatarsフォルダが見つかりませんでした",
                         description: "Chrome拡張機能から処理を開始させてフォルダを生成してください",
-                        duration: 5000,
+                        duration: 4000,
                         type: "warning",
                     })
                 )
@@ -53,7 +53,7 @@ function Header () {
                     variant="ghost"
                     aria-label='Open self-introduction'
                 >
-                    <Info />
+                    <CircleUserRound />
                 </IconButton>
                 <IconButton 
                     onClick={() => {BrowserOpenURL("https://docs.google.com/forms/d/e/1FAIpQLSeo5KjaIfDgXkJ_2va2N9iDJV2kmRXVwQpklYECFi0E4jHnDA/viewform")}}
