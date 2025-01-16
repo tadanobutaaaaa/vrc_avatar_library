@@ -30,11 +30,7 @@ function Header () {
                     variant="ghost"
                     aria-label='Open self-introduction'
                 >
-                    <Info 
-                        variant="ghost"
-                        aria-label='Toggle color mode'
-                        size="20px"
-                    />
+                    <Info />
                 </IconButton>
                 <IconButton 
                     onClick={() => {BrowserOpenURL("https://docs.google.com/forms/d/e/1FAIpQLSeo5KjaIfDgXkJ_2va2N9iDJV2kmRXVwQpklYECFi0E4jHnDA/viewform")}}
