@@ -112,6 +112,10 @@ func (a *App) OpenFolder() string {
 		fmt.Println("ユーザーホームディレクトリを取得できませんでした: ",err)
 	}
 	AvatarsPath := filepath.Join(home, "AppData", "Local", "VRC-Avatar-Library", "Avatars")
+	info, err := os.Stat(AvatarsPath)
+	if os.IsNotExist(err) || err != nil || !info.IsDir() {
+        return "Error"
+    }
 	return AvatarsPath
 }
 // startup is called when the app starts. The context is saved

@@ -1,17 +1,34 @@
 import { Flex, HStack, Box, Heading, IconButton } from '@chakra-ui/react';
+import { Toaster, toaster } from "@/components/ui/toaster";
+
 import { CircleHelp, Info, Settings, House, Folder } from 'lucide-react';
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import { OpenFolder } from "../../wailsjs/go/main/App";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useState } from 'react';
 
 function Header () {
     const navigate = useNavigate()
-    const [avatarsPath, setAvatarsPath] = useState("")
-    OpenFolder().then((res) => {
-        setAvatarsPath(res)
-    })
+
+    const checkAvatarsPath = () => {
+        OpenFolder().then((res) => {
+            if (res === "Error") {
+                return (
+                    toaster.create({
+                        title: "Avatarsフォルダが見つかりませんでした",
+                        description: "Chrome拡張機能から処理を開始させてフォルダを生成してください",
+                        duration: 5000,
+                        type: "warning",
+                    })
+                )
+            } else {
+                return(
+                    BrowserOpenURL(res)
+                )
+            }
+        })
+    }
+
     return (
         <Flex alignItems="center" justifyContent="center" bg="teal.400" p={5} position="relative">
             <Box textAlign="center">
@@ -46,7 +63,7 @@ function Header () {
                     <CircleHelp/>
                 </IconButton>
                 <IconButton 
-                    onClick={() => {BrowserOpenURL(avatarsPath)}}
+                    onClick={() => {checkAvatarsPath()}}
                     variant="ghost"
                     aria-label='Open Explorer'
                 >
