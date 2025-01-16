@@ -6,6 +6,10 @@ export function GetSearchFolder() {
   return window['go']['main']['App']['GetSearchFolder']();
 }
 
+export function OpenFolder() {
+  return window['go']['main']['App']['OpenFolder']();
+}
+
 export function SelectFolder() {
   return window['go']['main']['App']['SelectFolder']();
 }

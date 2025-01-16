@@ -3,4 +3,6 @@
 
 export function GetSearchFolder():Promise<string>;
 
+export function OpenFolder():Promise<string>;
+
 export function SelectFolder():Promise<string>;

@@ -90,7 +90,6 @@ func (a *App) SelectFolder() string {
 	return result
 }
 
-// 新しい関数を追加
 func (a *App) GetSearchFolder() string {
 	file, err := os.Open("./Config/config.json")
 	if err != nil {
@@ -107,5 +106,13 @@ func (a *App) GetSearchFolder() string {
 	return config.SearchFolder
 }
 
+func (a *App) OpenFolder() string {
+	home, err := os.UserHomeDir()
+	if (err != nil) {
+		fmt.Println("ユーザーホームディレクトリを取得できませんでした: ",err)
+	}
+	AvatarsPath := filepath.Join(home, "AppData", "Local", "VRC-Avatar-Library", "Avatars")
+	return AvatarsPath
+}
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
