@@ -1,5 +1,5 @@
 import { Flex, HStack, Box, Heading, IconButton } from '@chakra-ui/react';
-import { Toaster, toaster } from "@/components/ui/toaster";
+import { toaster } from "@/components/ui/toaster";
 
 import { CircleHelp, Info, Settings, House, Folder } from 'lucide-react';
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
