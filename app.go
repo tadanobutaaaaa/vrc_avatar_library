@@ -107,11 +107,8 @@ func (a *App) GetSearchFolder() string {
 }
 
 func (a *App) OpenFolder() string {
-	home, err := os.UserHomeDir()
-	if (err != nil) {
-		fmt.Println("ユーザーホームディレクトリを取得できませんでした: ",err)
-	}
-	AvatarsPath := filepath.Join(home, "AppData", "Local", "VRC-Avatar-Library", "Avatars")
+	currentDirectory, _ := os.Getwd()
+	AvatarsPath := filepath.Join(currentDirectory, "Avatars")
 	info, err := os.Stat(AvatarsPath)
 	if os.IsNotExist(err) || err != nil || !info.IsDir() {
         return "Error"
