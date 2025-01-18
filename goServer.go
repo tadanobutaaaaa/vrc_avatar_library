@@ -48,6 +48,8 @@ func GoServer() {
     r.Use(cors.New(cors.Config{
         AllowOrigins: []string{
             "https://accounts.booth.pm",
+            "http://wails.localhost",
+            "http://wails.localhost:34115",
         },
         AllowMethods: []string{
             "POST",
@@ -61,6 +63,15 @@ func GoServer() {
         },
     }))
 
+    //progressの値を保持するための変数
+    progressStatus := false
+
+    r.GET("/progress", func(c *gin.Context) {
+        c.JSON(http.StatusOK, gin.H{
+            "status": progressStatus,
+        })
+    })
+
     r.GET("/health", func(c *gin.Context) {
         c.JSON(http.StatusOK, gin.H{
             "status": true,
@@ -68,6 +79,7 @@ func GoServer() {
     })
 
     r.POST("/send/fileImages", func(c *gin.Context) {
+        progressStatus = true
         //保存する用のフォルダがない場合、フォルダを作成する
         if _, err := os.Stat("Avatars"); os.IsNotExist(err) {
             if err := os.Mkdir("Avatars", 0750); err != nil {
@@ -192,6 +204,10 @@ func GoServer() {
                 }
             }
         }
+
+        time.Sleep(3 * time.Second)
+
+        progressStatus = false
 
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{
