@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { BookText, Settings, Folder, CircleHelp, TriangleAlert, X } from 'lucide-react';
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
-import { Heading, Center, Box, Text, Image, Link, Flex, Icon, VStack } from "@chakra-ui/react";
+import { Heading, Center, Box, Text, Image, Link, Flex, Icon }from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import Header from '../components/Header';
+import { Alert } from "@/components/ui/alert"
+
 
 function Home(){
     const navigate = useNavigate()
@@ -104,40 +106,15 @@ function Home(){
                             </Text>
                         </Center>
                     </Flex>
-                </Box>
-                <Box>
-                    <Center>
-                        <Icon color="yellow.400" fontSize="23px" mb="2px" mr="3px"><TriangleAlert /></Icon>
-                        <Heading color="red">注意事項</Heading>
+                    <Center mt="15px">
+                        <Alert title="以下に該当する場合は処理から外れます。" status="error" w="60%">
+                            <Box as="ul" listStyleType="circle">
+                                <li>解凍してないフォルダ(.zipファイル)の状態のまま処理を開始した</li>
+                                <li>パソコンに存在するフォルダのバージョンとBoothのライブラリのバージョンが一致しない</li>
+                            </Box>
+                        </Alert>
                     </Center>
-                    <Box mt="10px">
-                        <Center>
-                            <Text fontWeight="bold">
-                                次の事項に該当しないかの確認をお願いします
-                            </Text>
-                        </Center>
-                        <Center mb="15px">
-                            <Text fontWeight="bold">  
-                                該当したフォルダは処理されませんのでご注意ください。
-                            </Text> 
-                        </Center>
-                        <Flex align="center" justify="flex-start" ml="180px">
-                            <Icon color="red" fontSize="25px">
-                                <X />
-                            </Icon>
-                            <Text>
-                                解凍してないフォルダ(.zipファイル)の状態のまま処理を開始した
-                            </Text>
-                        </Flex>
-                        <Flex align="center" justify="flex-start" ml="180px">
-                            <Icon color="red" fontSize="25px">
-                                <X />
-                            </Icon>
-                            <Text>
-                                パソコンに存在するフォルダのバージョンとBoothのライブラリのバージョンが一致しない
-                            </Text>
-                        </Flex>
-                    </Box>
+                    
                 </Box>
                 <Box>
                     <Center>
