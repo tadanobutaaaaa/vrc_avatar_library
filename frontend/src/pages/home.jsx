@@ -119,7 +119,7 @@ function Home(){
                         <Center>
                             <Text ml="15px">
                                 <Link
-                                    onClick={() => {BrowserOpenURL("https://chromewebstore.google.com/detail/vrc-avatar-library/fhjadoafaejfgjcpafnoaopkpbbjganm?authuser=0&hl=ja")}}
+                                    onClick={() => {BrowserOpenURL("https://accounts.booth.pm/library")}}
                                     variant="underline"
                                     colorPalette={"blue"}
                                     _hover={{ color: "teal" }}
