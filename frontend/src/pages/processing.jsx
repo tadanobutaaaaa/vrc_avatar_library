@@ -8,25 +8,32 @@ function Processing(){
     const navigate = useNavigate()
 
     useEffect(() => {
-            const interval = setInterval(() => {
-                fetch("http://localhost:8080/progress", {
-                    mode: "cors",
-                    method: "GET",
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        console.log(data.status)
-                        if (data.status === false) {
-                            clearInterval(interval)
-                            navigate("/result")
-                            return
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("処理が開始していません:", error)
-                    })
-            }, 2000)
-            return () => clearInterval(interval)
+            const socket = new WebSocket("ws://localhost:8080/ws")
+    
+            socket.onopen = () => {
+                console.log("WebSocket接続が確立されました")
+            }
+    
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data)
+                console.log(data)
+                if (data.status === false) {
+                    socket.close()
+                    navigate("/result")
+                }
+            }
+    
+            socket.onerror = (error) => {
+                console.error("WebSocketエラー:", error)
+            }
+    
+            socket.onclose = (event) => {
+                console.log("WebSocket接続が閉じられました:", event)
+            }
+    
+            return () => {
+                socket.close()
+            }
         }, [])
 
     return (
