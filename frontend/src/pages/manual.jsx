@@ -5,7 +5,7 @@ import { FaXTwitter, FaGithub } from "react-icons/fa6";
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import { Card, Image, Center, Flex, Box, IconButton, Icon } from "@chakra-ui/react"; 
 
-function App() {
+function Manual() {
 
     const QiitaIcon = () => {
         return(
@@ -99,4 +99,4 @@ function App() {
     );
 }
 
-export default App
+export default Manual
