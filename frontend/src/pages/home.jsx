@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { BookText, Settings, Folder, CircleHelp } from 'lucide-react';
+import { BookText, Settings, Folder, CircleHelp, TriangleAlert, X } from 'lucide-react';
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
-import { Heading, Center, Box, Text, Image, Link, Flex, Icon } from "@chakra-ui/react";
+import { Heading, Center, Box, Text, Image, Link, Flex, Icon, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import Header from '../components/Header';
 
@@ -37,6 +37,8 @@ function Home(){
             socket.close()
         }
     }, [])
+
+    //TODO:デザインの修正
 
     return (
         <>
@@ -105,6 +107,40 @@ function Home(){
                 </Box>
                 <Box>
                     <Center>
+                        <Icon color="yellow.400" fontSize="23px" mb="2px" mr="3px"><TriangleAlert /></Icon>
+                        <Heading color="red">注意事項</Heading>
+                    </Center>
+                    <Box mt="10px">
+                        <Center>
+                            <Text fontWeight="bold">
+                                次の事項に該当しないかの確認をお願いします
+                            </Text>
+                        </Center>
+                        <Center mb="15px">
+                            <Text fontWeight="bold">  
+                                該当したフォルダは処理されませんのでご注意ください。
+                            </Text> 
+                        </Center>
+                        <Flex align="center" justify="flex-start" ml="180px">
+                            <Icon color="red" fontSize="25px">
+                                <X />
+                            </Icon>
+                            <Text>
+                                解凍してないフォルダ(.zipファイル)の状態のまま処理を開始した
+                            </Text>
+                        </Flex>
+                        <Flex align="center" justify="flex-start" ml="180px">
+                            <Icon color="red" fontSize="25px">
+                                <X />
+                            </Icon>
+                            <Text>
+                                パソコンに存在するフォルダのバージョンとBoothのライブラリのバージョンが一致しない
+                            </Text>
+                        </Flex>
+                    </Box>
+                </Box>
+                <Box>
+                    <Center>
                         <Heading>3.Boothのライブラリページに移動する</Heading>
                     </Center>
                     <Flex ml="100px" mt="15px">
@@ -118,13 +154,14 @@ function Home(){
                         ></Image>
                         <Center>
                             <Text ml="15px">
+                                まず、
                                 <Link
                                     onClick={() => {BrowserOpenURL("https://accounts.booth.pm/library")}}
                                     variant="underline"
                                     colorPalette={"blue"}
                                     _hover={{ color: "teal" }}
                                     fontWeight="bold"
-                                >Booth</Link>にアクセスし右上のアイコンからライブラリを選択します。<br />   
+                                >Booth</Link>にアクセスしてください。<br />   
                                 サムネイルを付与したい商品を選択し、「処理開始」ボタン <br />
                                 を押してください。<br />
                                 <br />
