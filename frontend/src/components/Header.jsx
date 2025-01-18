@@ -8,9 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Page from './colorModeButton';
 
-function Header () {
+function Header ({ status = false }) {
     const navigate = useNavigate()
-
     const checkAvatarsPath = () => {
         OpenFolder().then((res) => {
             if (res === "Error") {
@@ -30,19 +29,27 @@ function Header () {
         })
     }
 
+    //TODO:処理中のボタンの無効化
+
     return (
         <Flex alignItems="center" justifyContent="center" bg="teal.400" p={5} position="relative">
             <Box textAlign="center">
-                <Link to="/">
-                    <Heading size="2xl">VRC Avatar Library</Heading>
-                </Link>
+                {
+                    status ? (
+                        <Heading size="2xl">VRC Avatar Library</Heading>
+                    ) : (
+                        <Link to="/">
+                            <Heading size="2xl">VRC Avatar Library</Heading>
+                        </Link>
+                    )
+                }
             </Box>
-            
             <HStack position="absolute" left={5}>
                 <IconButton
                     onClick={() => navigate("/") }
                     variant="ghost"
                     aria-label='Open home'
+                    disabled={status}
                 >
                     <House/>
                 </IconButton>
@@ -53,6 +60,7 @@ function Header () {
                     onClick={() => navigate("/manual")}
                     variant="ghost"
                     aria-label='Open self-introduction'
+                    disabled={status}
                 >
                     <CircleUserRound />
                 </IconButton>
@@ -60,6 +68,7 @@ function Header () {
                     onClick={() => {BrowserOpenURL("https://docs.google.com/forms/d/e/1FAIpQLSeo5KjaIfDgXkJ_2va2N9iDJV2kmRXVwQpklYECFi0E4jHnDA/viewform")}}
                     variant="ghost"
                     aria-label='Open Google Form'
+                    disabled={status}
                 >
                     <CircleHelp/>
                 </IconButton>
@@ -67,6 +76,7 @@ function Header () {
                     onClick={() => {checkAvatarsPath()}}
                     variant="ghost"
                     aria-label='Open Explorer'
+                    disabled={status}
                 >
                     <Folder/>
                 </IconButton>
@@ -74,6 +84,7 @@ function Header () {
                     onClick={() => navigate("/setupProcess")}
                     variant="ghost"
                     aria-label='Open settings'
+                    disabled={status}
                 >
                     <Settings/>
                 </IconButton>

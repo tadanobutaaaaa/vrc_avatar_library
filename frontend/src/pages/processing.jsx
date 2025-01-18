@@ -38,7 +38,7 @@ function Processing(){
 
     return (
         <>
-            <Header />
+            <Header status={true} />
             <Center h="600px">
                 <ProgressRoot w="300px" value={null}>
                     <ProgressLabel info="フォルダにサムネイルを付与しています" mb="2">
