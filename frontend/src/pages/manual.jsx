@@ -10,7 +10,7 @@ function Manual() {
     const QiitaIcon = () => {
         return(
             <Icon>
-                <Image src="/svg/qiita-icon.svg" boxSize="22px" />
+                <Image src="/svg/qiita-icon.svg" boxSize="24px" />
             </Icon>
         )
     }
@@ -18,7 +18,7 @@ function Manual() {
     const BoothIcon = () => {
         return(
             <Icon>
-                <Image src="/svg/booth-icon.svg" boxSize="22px" />
+                <Image src="/svg/booth-icon.svg" boxSize="24px" />
             </Icon>
         )
     }
@@ -45,14 +45,18 @@ function Manual() {
                                             variant="ghost"
                                             aria-label='Open X(Twitter)'
                                         >
-                                            <FaXTwitter />
+                                            <Icon fontSize="24px">
+                                                <FaXTwitter />
+                                            </Icon>
                                         </IconButton>
                                         <IconButton
                                             onClick={() => {BrowserOpenURL("https://github.com/tadanobutaaaaa")}}
                                             variant="ghost"
                                             aria-label='Open GitHub'
                                         >
-                                            <FaGithub />
+                                            <Icon fontSize="24px">
+                                                <FaGithub />
+                                            </Icon>
                                         </IconButton>
                                         <IconButton
                                             onClick={() => {BrowserOpenURL("https://qiita.com/tadanobutaaaaa")}}
