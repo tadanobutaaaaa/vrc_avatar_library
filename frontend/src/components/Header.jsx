@@ -6,6 +6,7 @@ import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import { OpenFolder } from "../../wailsjs/go/main/App";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import Page from './colorModeButton';
 
 function Header () {
     const navigate = useNavigate()
@@ -76,6 +77,7 @@ function Header () {
                 >
                     <Settings/>
                 </IconButton>
+                <Page />
             </HStack>
         </Flex>
     )
