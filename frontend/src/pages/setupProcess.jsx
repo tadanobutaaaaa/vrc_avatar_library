@@ -29,6 +29,7 @@ function SetupProcess() {
         })
     }
 
+    //TODO:デザインの修正
 
     return (
         <>

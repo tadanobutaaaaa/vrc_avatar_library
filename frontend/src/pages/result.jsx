@@ -69,7 +69,6 @@ function Result(){
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
-
             >
                 <Box>
                     <Heading as="h2" size="xl" mt={6} mb={2}>

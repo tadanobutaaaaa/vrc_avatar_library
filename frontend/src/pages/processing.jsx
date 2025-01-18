@@ -47,7 +47,6 @@ function Processing(){
                     <ProgressBar />
                 </ProgressRoot>
             </Center>
-            
         </>
     );
 }
