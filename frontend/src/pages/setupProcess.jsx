@@ -4,10 +4,13 @@ import { SelectFolder, GetSearchFolder} from '../../wailsjs/go/main/App';
 import { FolderSearch } from 'lucide-react';
 import { IconButton, Flex, Text, Box } from "@chakra-ui/react"; 
 import { Search } from 'lucide-react';
+import { useColorModeValue } from "@/components/ui/color-mode"
 
 
 function SetupProcess() {
     const [searchFolder, setSearchFolder] = useState("")
+
+    const bgColor = useColorModeValue("gray.100", "gray.400")
 
     useEffect(() => {
         const fetchSearchFolder = async () => {
@@ -40,7 +43,7 @@ function SetupProcess() {
                         <Flex maxW="800px">
                             <Text 
                                 textStyle="md" 
-                                bgColor="gray.50"
+                                bgColor={bgColor}
                                 borderRadius="sm"
                                 py="3px"
                                 px="6px"
