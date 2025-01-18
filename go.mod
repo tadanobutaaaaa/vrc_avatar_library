@@ -8,6 +8,7 @@ require (
 	github.com/Kodeworks/golang-image-ico v0.0.0-20141118225523-73f0f4cfade9
 	github.com/gin-contrib/cors v1.7.3
 	github.com/gin-gonic/gin v1.10.0
+	github.com/gorilla/websocket v1.5.3
 	github.com/wailsapp/wails/v2 v2.9.2
 	golang.org/x/image v0.23.0
 	gopkg.in/ini.v1 v1.67.0
