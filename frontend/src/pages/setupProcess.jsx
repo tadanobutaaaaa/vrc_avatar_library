@@ -6,7 +6,7 @@ import { IconButton, Flex, Text, Box } from "@chakra-ui/react";
 import { Search } from 'lucide-react';
 
 
-function App() {
+function SetupProcess() {
     const [searchFolder, setSearchFolder] = useState("")
 
     useEffect(() => {
@@ -31,7 +31,7 @@ function App() {
         <>
             <Header />
             <Box ml="50px" mt="50px">
-                <Box background="#9DC8C8" w="85%" p="20px" borderRadius="md">
+                <Box background="#c0c0c0" w="85%" p="20px" borderRadius="md">
                     <Flex alignItems="center" gap="6px" mb="5px">
                         <Search />
                         <Text textStyle="2xl" fontWeight="bold">検索フォルダ</Text>
@@ -61,4 +61,4 @@ function App() {
     )
 }
 
-export default App
+export default SetupProcess
