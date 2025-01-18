@@ -142,8 +142,9 @@ func GoServer() {
 	})
 
 	r.POST("/send/fileImages", func(c *gin.Context) {
-        // WebSocketで{"status": true}を返す
+
         sendWebsocket(true)
+
 		if _, err := os.Stat("Avatars"); os.IsNotExist(err) {
 			if err := os.Mkdir("Avatars", 0750); err != nil {
 				return
@@ -168,6 +169,9 @@ func GoServer() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		//TODO:自動で解凍して処理するプログラムを書くかの検討
+		//FIXME: サムネイル付与時間の修正(反映まで時間がかかる)
 
 		for _, entry := range entries {
 			for key := range jsonData {
@@ -270,19 +274,14 @@ func GoServer() {
 
 		time.Sleep(3 * time.Second)
 
+		sendWebsocket(false)
+		
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"response": jsonData,
-		})
-
-		// WebSocketで{"status": false}を返す
-		sendWebsocket(false)
 	})
 
 	r.Run(":8080")
