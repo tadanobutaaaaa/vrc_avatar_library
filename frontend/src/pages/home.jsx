@@ -107,7 +107,7 @@ function Home(){
                         </Center>
                     </Flex>
                     <Center mt="15px">
-                        <Alert title="以下に該当する場合は処理から外れます。" status="error" w="60%">
+                        <Alert title="以下に該当する場合は処理から外れます。" status="error" w="70%">
                             <Box as="ul" listStyleType="circle">
                                 <li>解凍してないフォルダ(.zipファイル)の状態のまま処理を開始した</li>
                                 <li>パソコンに存在するフォルダのバージョンとBoothのライブラリのバージョンが一致しない</li>
