@@ -85,7 +85,7 @@ function Home(){
             </Box>
                 <Box>
                     <Center>
-                        <Heading>2.設定を確認する</Heading>
+                        <Heading>2.検索フォルダの設定を確認する</Heading>
                     </Center>
                     <Flex ml="100px" mt="15px">
                         <Image
