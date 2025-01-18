@@ -31,6 +31,29 @@ type Booth struct {
 	Src  string `json:"src"`
 }
 
+var (
+	mutex   sync.Mutex
+	clients = make(map[*websocket.Conn]bool)
+)
+
+func sendWebsocket(status bool) {
+	isProcessing := map[string]bool{"status": status}
+	jsonMessage, err := json.Marshal(isProcessing)
+	if err != nil {
+		log.Println("Error marshalling message:", err)
+	} else {
+		mutex.Lock()
+		for client := range clients {
+			if err := client.WriteMessage(websocket.TextMessage, jsonMessage); err != nil {
+				log.Println("Error writing message:", err)
+				client.Close()
+				delete(clients, client)
+			}
+		}
+		mutex.Unlock()
+	}
+}
+
 func GoServer() {
 	r := gin.Default()
 
@@ -56,11 +79,6 @@ func GoServer() {
 			return true
 		},
 	}
-
-	//progressの値を保持するための変数
-	progressStatus := false
-	var mutex sync.Mutex
-	var clients = make(map[*websocket.Conn]bool)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
@@ -117,37 +135,6 @@ func GoServer() {
 		}
 	})
 
-	go func() {
-		var lastStatus bool
-		for {
-			time.Sleep(1 * time.Second)
-			mutex.Lock()
-			currentValue := progressStatus
-			mutex.Unlock()
-
-			if currentValue != lastStatus {
-				lastStatus = currentValue
-				isProcessing := map[string]bool{"status": currentValue}
-
-				jsonMessage, err := json.Marshal(isProcessing)
-				if err != nil {
-					log.Println("Error marshalling message:", err)
-					continue
-				}
-
-				mutex.Lock()
-				for client := range clients {
-					if err := client.WriteMessage(websocket.TextMessage, jsonMessage); err != nil {
-						log.Println("Error writing message:", err)
-						client.Close()
-						delete(clients, client)
-					}
-				}
-				mutex.Unlock()
-			}
-		}
-	}()
-
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": true,
@@ -155,9 +142,8 @@ func GoServer() {
 	})
 
 	r.POST("/send/fileImages", func(c *gin.Context) {
-		mutex.Lock() // クリティカルセクションの開始
-		progressStatus = true
-		mutex.Unlock() // クリティカルセクションの終了
+        // WebSocketで{"status": true}を返す
+        sendWebsocket(true)
 		if _, err := os.Stat("Avatars"); os.IsNotExist(err) {
 			if err := os.Mkdir("Avatars", 0750); err != nil {
 				return
@@ -284,10 +270,6 @@ func GoServer() {
 
 		time.Sleep(3 * time.Second)
 
-		mutex.Lock() // クリティカルセクションの開始
-		progressStatus = false
-		mutex.Unlock() // クリティカルセクションの終了
-
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -298,6 +280,9 @@ func GoServer() {
 		c.JSON(http.StatusOK, gin.H{
 			"response": jsonData,
 		})
+
+		// WebSocketで{"status": false}を返す
+		sendWebsocket(false)
 	})
 
 	r.Run(":8080")
