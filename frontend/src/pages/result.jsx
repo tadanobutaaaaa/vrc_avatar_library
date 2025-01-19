@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button"
 import { OpenFolder } from "../../wailsjs/go/main/App";
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import goWebSocket from '../hooks/goWebSocket';
+import { useNavigate } from "react-router-dom";
 
 
 function Result(){
+    const navigate = useNavigate()
     goWebSocket("/processing")
 
     const checkAvatarsPath = () => {
