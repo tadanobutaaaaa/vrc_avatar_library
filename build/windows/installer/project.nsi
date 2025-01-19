@@ -88,6 +88,10 @@ Section
 
     !insertmacro wails.files
 
+    SetOverwrite ifnewer
+    File /oname=$INSTDIR\${PRODUCT_EXECUTABLE} ${PRODUCT_EXECUTABLE}
+    SetOverwrite off
+
     CreateShortcut "$SMPROGRAMS\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"
     CreateShortCut "$DESKTOP\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"
 
