@@ -4,8 +4,6 @@ import Header from '../components/Header';
 import { Center } from "@chakra-ui/react";
 import { ProgressBar, ProgressRoot, ProgressLabel } from "@/components/ui/progress"
 
-//TODO:どのページからでも処理中はこのページに飛ぶようにする
-//関数化もする
 
 function Processing(){
     goWebSocket("/result", false)
