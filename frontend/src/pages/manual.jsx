@@ -4,8 +4,10 @@ import Header from '../components/Header';
 import { FaXTwitter, FaGithub } from "react-icons/fa6";
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import { Card, Image, Center, Flex, Box, IconButton, Icon } from "@chakra-ui/react"; 
+import goWebSocket from '../hooks/goWebSocket';
 
 function Manual() {
+    goWebSocket("/processing")
 
     const QiitaIcon = () => {
         return(

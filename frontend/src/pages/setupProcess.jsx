@@ -5,9 +5,12 @@ import { FolderSearch } from 'lucide-react';
 import { IconButton, Flex, Text, Box } from "@chakra-ui/react"; 
 import { Search } from 'lucide-react';
 import { useColorModeValue } from "@/components/ui/color-mode"
+import goWebSocket from "../hooks/goWebSocket";
 
 
 function SetupProcess() {
+    goWebSocket("/processing")
+
     const [searchFolder, setSearchFolder] = useState("")
 
     const bgColor = useColorModeValue("gray.100", "gray.400")

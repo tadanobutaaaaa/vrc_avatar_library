@@ -29,8 +29,6 @@ function Header ({ status = false }) {
         })
     }
 
-    //TODO:処理中のボタンの無効化
-
     return (
         <Flex alignItems="center" justifyContent="center" bg="teal.400" p={5} position="relative">
             <Box textAlign="center">

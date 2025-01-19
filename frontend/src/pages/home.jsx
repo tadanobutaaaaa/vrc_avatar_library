@@ -1,44 +1,14 @@
-import React, { useEffect } from 'react';
-import { BookText, Settings, Folder, CircleHelp, TriangleAlert, X } from 'lucide-react';
+import React from 'react';
+import { BookText, Settings, Folder, CircleHelp } from 'lucide-react';
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import { Heading, Center, Box, Text, Image, Link, Flex, Icon }from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
 import Header from '../components/Header';
 import { Alert } from "@/components/ui/alert"
+import goWebSocket from '../hooks/goWebSocket';
 
 
 function Home(){
-    const navigate = useNavigate()
-
-    useEffect(() => {
-        const socket = new WebSocket("ws://localhost:8080/ws")
-
-        socket.onopen = () => {
-            console.log("WebSocket接続が確立されました")
-        }
-
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data)
-            console.log(data)
-            if (data.status === true) {
-                console.log("処理が開始しています")
-                socket.close()
-                navigate("/processing")
-            }
-        }
-
-        socket.onerror = (error) => {
-            console.error("WebSocketエラー:", error)
-        }
-
-        socket.onclose = (event) => {
-            console.log("WebSocket接続が閉じられました:", event)
-        }
-
-        return () => {
-            socket.close()
-        }
-    }, [])
+    goWebSocket("/processing")
 
     //TODO:デザインの修正
 

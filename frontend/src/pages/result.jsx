@@ -1,45 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Header from '../components/Header';
 
 import { Box, Heading, Text, Stack } from "@chakra-ui/react";
 import { Button } from "@/components/ui/button"
-import { useNavigate } from "react-router-dom";
 import { OpenFolder } from "../../wailsjs/go/main/App";
 import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
+import goWebSocket from '../hooks/goWebSocket';
 
 
 function Result(){
-    const navigate = useNavigate()
-
-    useEffect(() => {
-            const socket = new WebSocket("ws://localhost:8080/ws")
-    
-            socket.onopen = () => {
-                console.log("WebSocket接続が確立されました")
-            }
-    
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data)
-                console.log(data)
-                if (data.status === true) {
-                    console.log("処理が開始しています")
-                    socket.close()
-                    navigate("/processing")
-                }
-            }
-    
-            socket.onerror = (error) => {
-                console.error("WebSocketエラー:", error)
-            }
-    
-            socket.onclose = (event) => {
-                console.log("WebSocket接続が閉じられました:", event)
-            }
-    
-            return () => {
-                socket.close()
-            }
-        }, [])
+    goWebSocket("/processing")
 
     const checkAvatarsPath = () => {
             OpenFolder().then((res) => {
