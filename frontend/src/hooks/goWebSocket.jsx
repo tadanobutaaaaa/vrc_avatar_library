@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 
-function goWebSocket(page, status = true) {
+function useWebSocket(page, status = true, onMessage = null) {
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -12,11 +12,41 @@ function goWebSocket(page, status = true) {
         }
 
         socket.onmessage = (event) => {
-            const data = JSON.parse(event.data)
-            console.log(data)
-            if (data.status === status) {
-                socket.close()
-                navigate(page)
+            console.log("受信メッセージ:", event.data)
+            try {
+                const data = JSON.parse(event.data)
+                console.log("Parsed data:", data)
+
+                if (!('status' in data) || !('count' in data) || !('processedCount' in data)) {
+                    console.warn("必要なデータが不足しています:", data)
+                    return
+                }
+
+                if (data.status === status) {
+                    socket.close()
+                    navigate(page)
+                } else if (status === false) {
+                    const count = Number(data.count)
+                    const processedCount = Number(data.processedCount)
+                    
+                    console.log("処理済みの数:", processedCount)
+                    console.log("全体の数:", count)
+                    
+                    if (!isNaN(count) && count !== 0) {
+                        const percentage = Math.floor((processedCount / count) * 100)
+                        console.log("計算されたパーセンテージ:", percentage)
+                        if (onMessage && typeof onMessage === 'function') {
+                            onMessage(percentage)
+                        }
+                    } else {
+                        console.log("パーセンテージを0に設定")
+                        if (onMessage && typeof onMessage === 'function') {
+                            onMessage(0)
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("メッセージ解析エラー:", e)
             }
         }
 
@@ -34,4 +64,4 @@ function goWebSocket(page, status = true) {
     }, [])
 }
 
-export default goWebSocket
+export default useWebSocket
