@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 
-function useWebSocket(page, status = true, onMessage = null) {
+function useWebSocket(page, status = true, onMessage = null, onHandle = null) {
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -38,10 +38,16 @@ function useWebSocket(page, status = true, onMessage = null) {
                         if (onMessage && typeof onMessage === 'function') {
                             onMessage(percentage)
                         }
+                        if (onHandle && typeof onHandle === 'function') {
+                            onHandle(count - processedCount)
+                        }
                     } else {
                         console.log("パーセンテージを0に設定")
                         if (onMessage && typeof onMessage === 'function') {
                             onMessage(0)
+                        }
+                        if (onHandle && typeof onHandle === 'function') {
+                            onHandle(0)
                         }
                     }
                 }
