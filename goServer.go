@@ -274,7 +274,7 @@ func GoServer() {
 							}
 
 							//サーバーへの負荷対策
-                            processedCount++
+							processedCount++
 							sendWebsocket(true, count, processedCount)
 
 							time.Sleep(1 * time.Second)
@@ -283,8 +283,6 @@ func GoServer() {
 				}
 			}
 		}
-
-		time.Sleep(3 * time.Second)
 
 		sendWebsocket(false, count, count)
 		
