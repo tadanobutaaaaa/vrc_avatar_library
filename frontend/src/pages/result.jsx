@@ -8,6 +8,7 @@ import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import goWebSocket from '../hooks/goWebSocket';
 import { useNavigate } from "react-router-dom";
 
+//TODO: 使い方4への案内を追加
 
 function Result(){
     const navigate = useNavigate()
@@ -46,8 +47,11 @@ function Result(){
                     <Heading as="h2" size="xl" mt={6} mb={2}>
                         処理が完了しました！
                     </Heading>
-                    <Text color="gray.500" mb={6}>
+                    <Text color="gray.500">
                         ご利用ありがとうございました。次の操作を選択してください。
+                    </Text>
+                    <Text color="red.500" mb={6}>
+                        <strong>初めての処理の場合は、ホームに戻りSTEP4に進んでください。</strong>
                     </Text>
                     <Stack direction="row" spacing={4} justify="center">
                         <Button onClick={() => {navigate("/")}}>ホームに戻る</Button>
