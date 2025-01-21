@@ -30,7 +30,7 @@ function Processing(){
                         <ProgressBar flex="1" />
                         <ProgressValueText>{processedPercent}%</ProgressValueText>
                     </HStack>
-                    <Flex justify="flex-end" mr="39px">
+                    <Flex justify="flex-end" mr="39px" mt="6px">
                         <Text>推定残り時間:</Text>
                         {
                             unProcessedCount <= 60 ? (
