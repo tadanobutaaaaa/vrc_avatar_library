@@ -176,7 +176,6 @@ func GoServer() {
 
 		sendWebsocket(true, count, 0)
 	
-		//TODO:自動で解凍して処理するプログラムを書くかの検討
 		//FIXME: サムネイル付与時間の修正(反映まで時間がかかる)
 
 		for _, entry := range entries {
@@ -284,6 +283,7 @@ func GoServer() {
 			}
 		}
 
+		time.Sleep(1 * time.Second)
 		sendWebsocket(false, count, count)
 		
 		count = 0
