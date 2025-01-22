@@ -10,8 +10,6 @@ import goWebSocket from '../hooks/goWebSocket';
 function Home(){
     goWebSocket("/processing")
 
-    //TODO:デザインの修正
-
     return (
         <>
             <Header />
