@@ -25,36 +25,9 @@ func NewApp() *App {
 }
 
 func (a *App) startup(ctx context.Context) {
-	if _, err := os.Stat("Config"); os.IsNotExist(err) {
-		if err := os.Mkdir("Config", 0750); err != nil {
-			return
-		}
-	}
-	if _, err := os.Stat("./Config/config.json"); os.IsNotExist(err) {
-		home, err := os.UserHomeDir()
-		if (err != nil) {
-			fmt.Println("ユーザーホームディレクトリを取得できませんでした: ",err)
-		}
-		DownloadPath := filepath.Join(home, "Downloads")
-
-		initialConfig := Config{
-			SearchFolder: DownloadPath,
-		}
-
-		file, err := os.Create("./Config/config.json")
-		if err != nil {
-			fmt.Println("設定ファイルを作成できませんでした: ",err)
-		}
-		defer file.Close()
-
-		encoder := json.NewEncoder(file)
-		encoder.SetIndent("", "  ") // 見やすいようにインデントを設定
-		if err := encoder.Encode(initialConfig); err != nil {
-			fmt.Printf("JSON エンコードエラー: %v\n", err)
-			return
-		}
-	}
 	a.ctx = ctx
+	
+	a.MakeConfig()
 	GoServer()
 }
 
@@ -114,6 +87,38 @@ func (a *App) OpenFolder() string {
         return "Error"
     }
 	return AvatarsPath
+}
+
+func (a *App) MakeConfig() {
+	if _, err := os.Stat("Config"); os.IsNotExist(err) {
+		if err := os.Mkdir("Config", 0750); err != nil {
+			return
+		}
+	}
+	if _, err := os.Stat("./Config/config.json"); os.IsNotExist(err) {
+		home, err := os.UserHomeDir()
+		if (err != nil) {
+			fmt.Println("ユーザーホームディレクトリを取得できませんでした: ",err)
+		}
+		DownloadPath := filepath.Join(home, "Downloads")
+
+		initialConfig := Config{
+			SearchFolder: DownloadPath,
+		}
+
+		file, err := os.Create("./Config/config.json")
+		if err != nil {
+			fmt.Println("設定ファイルを作成できませんでした: ",err)
+		}
+		defer file.Close()
+
+		encoder := json.NewEncoder(file)
+		encoder.SetIndent("", "  ") // 見やすいようにインデントを設定
+		if err := encoder.Encode(initialConfig); err != nil {
+			fmt.Printf("JSON エンコードエラー: %v\n", err)
+			return
+		}
+	}
 }
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
