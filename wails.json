@@ -15,12 +15,6 @@
     "productName": "VRC-Avatar-Library",
     "productVersion": "1.0.0",
     "copyright": "© 2025 tadanobutaaaaa",
-    "comments": "Built using Wails (https://wails.io)",
-    "protocols": [
-      {
-        "scheme": "vrc-avatar-library",
-        "description": "Boothで買ったVRChat関連のフォルダにサムネイルをつけて管理するアプリ"
-      }
-    ]
+    "comments": "Built using Wails (https://wails.io)"
   }
 }
