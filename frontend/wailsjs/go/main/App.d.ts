@@ -3,6 +3,10 @@
 
 export function GetSearchFolder():Promise<string>;
 
+export function MakeConfig():Promise<void>;
+
 export function OpenFolder():Promise<string>;
 
 export function SelectFolder():Promise<string>;
+
+export function WriteURLJson():Promise<void>;

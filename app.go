@@ -26,9 +26,10 @@ func NewApp() *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	
-	a.MakeConfig()
-	GoServer()
+
+	go a.MakeConfig()
+	go GithubAPI(a)
+	go GoServer()
 }
 
 func (a *App) SelectFolder() string {
@@ -120,5 +121,10 @@ func (a *App) MakeConfig() {
 		}
 	}
 }
+
+func (a *App) WriteURLJson() error {
+    return WriteDownloadURLToFile()
+}
+
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods

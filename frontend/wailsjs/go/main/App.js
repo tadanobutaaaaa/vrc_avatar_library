@@ -6,10 +6,18 @@ export function GetSearchFolder() {
   return window['go']['main']['App']['GetSearchFolder']();
 }
 
+export function MakeConfig() {
+  return window['go']['main']['App']['MakeConfig']();
+}
+
 export function OpenFolder() {
   return window['go']['main']['App']['OpenFolder']();
 }
 
 export function SelectFolder() {
   return window['go']['main']['App']['SelectFolder']();
+}
+
+export function WriteURLJson() {
+  return window['go']['main']['App']['WriteURLJson']();
 }

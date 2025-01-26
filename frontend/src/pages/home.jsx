@@ -1,18 +1,60 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { WriteURLJson } from '../../wailsjs/go/main/App';
 import { BookText, Settings, Folder, CircleHelp } from 'lucide-react';
-import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
+import { BrowserOpenURL, EventsOn } from "../../wailsjs/runtime/runtime";
 import { Heading, Center, Box, Text, Image, Link, Flex, Icon }from "@chakra-ui/react";
 import Header from '../components/Header';
 import { Alert } from "@/components/ui/alert"
 import goWebSocket from '../hooks/goWebSocket';
-
+import { Button } from "@/components/ui/button"
+import { DialogActionTrigger, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot, DialogTitle } from "@/components/ui/dialog"
 
 function Home(){
-    goWebSocket("/processing")
+    const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
+    const [latestVersion, setLatestVersion] = useState("")
+    const [latestVersionURL, setLatestVersionURL] = useState("")
 
+    EventsOn("updateAvailable", (data) => {
+        setIsUpdateAvailable(true)
+        setLatestVersion(data.version)
+        setLatestVersionURL(data.url)
+        console.log(data.url)
+    })
+
+    const handleUpdateNow = () => {
+        //アップデートを実行する処理の実行
+        setIsUpdateAvailable(false)
+        WriteURLJson()
+    }
+
+    const handleUpdateLater = () => {
+        setIsUpdateAvailable(false)
+    }
+
+    goWebSocket("/processing")
     return (
         <>
             <Header />
+                <DialogRoot open={isUpdateAvailable}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>アップデートのお知らせ</DialogTitle>
+                        </DialogHeader>
+                        <DialogBody>
+                            <p>
+                            🎉 新しいバージョン <strong>Ver.{latestVersion}</strong> が登場しました！<br />
+                            リリースノートは<Link onClick={() => {BrowserOpenURL(latestVersionURL)}} variant="underline" colorPalette="blue" _hover={{ color: "teal" }} fontWeight="bold">こちら</Link>から確認できます。<br />
+                            今すぐインストールして最新の機能をお試しください！
+                            </p>
+                        </DialogBody>
+                        <DialogFooter>
+                            <DialogActionTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={handleUpdateLater}>後で</Button>
+                            </DialogActionTrigger>
+                            <Button onClick={handleUpdateNow} size="sm" >インストールする</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </DialogRoot>
             <Center mt="20px">
                 <BookText size="40px"/>
                 <Heading size="4xl" ml="5px">使い方</Heading>
@@ -33,20 +75,20 @@ function Home(){
                     ></Image>
                     <Center>
                         <Text ml="15px">
-                        <Link 
-                            onClick={() => {BrowserOpenURL("https://chromewebstore.google.com/detail/vrc-avatar-library/fhjadoafaejfgjcpafnoaopkpbbjganm?authuser=0&hl=ja")}}
-                            variant="underline"
-                            colorPalette={"blue"}
-                            _hover={{ color: "teal" }}
-                            fontWeight="bold"
-                        >Chromeウェブストア</Link>
-                        にアクセスし、右上の「Chromeに追加」ボタン<br />
-                        をクリックしてインストールしてください。<br />
-                        <br />
-                        対応ブラウザは<strong>Google Chrome</strong>はもちろんのこと、<br />
-                        <strong>Microsoft Edge</strong>、<strong>Brave</strong>などのChromium系でも使用可能です。<br />
-                        <br />
-                        <strong>※Firefoxには対応していませんのでご注意ください。</strong>
+                            <Link 
+                                onClick={() => {BrowserOpenURL("https://chromewebstore.google.com/detail/vrc-avatar-library/fhjadoafaejfgjcpafnoaopkpbbjganm?authuser=0&hl=ja")}}
+                                variant="underline"
+                                colorPalette={"blue"}
+                                _hover={{ color: "teal" }}
+                                fontWeight="bold"
+                            >Chromeウェブストア</Link>
+                            にアクセスし、右上の「Chromeに追加」ボタン<br />
+                            をクリックしてインストールしてください。<br />
+                            <br />
+                            対応ブラウザは<strong>Google Chrome</strong>はもちろんのこと、<br />
+                            <strong>Microsoft Edge</strong>、<strong>Brave</strong>などのChromium系でも使用可能です。<br />
+                            <br />
+                            <strong>※Firefoxには対応していませんのでご注意ください。</strong>
                         </Text>
                     </Center>
                 </Flex>
@@ -66,11 +108,11 @@ function Home(){
                         ></Image>
                         <Center ml="15px">
                             <Text>
-                            アプリの右上の<Icon ml="3px" mb="4px" mr="1px" fontSize="20px"><Settings /></Icon>設定アイコンからBoothで買った商品が<br />
-                            保存されるフォルダを指定してください。<br />
-                            <br />
-                            初期設定ではダウンロードフォルダが設定されています。<br />
-                            <strong>この設定が正しくないとプログラムが動かないのでご注意ください。</strong>
+                                アプリの右上の<Icon ml="3px" mb="4px" mr="1px" fontSize="20px"><Settings /></Icon>設定アイコンからBoothで買った商品が<br />
+                                保存されるフォルダを指定してください。<br />
+                                <br />
+                                初期設定ではダウンロードフォルダが設定されています。<br />
+                                <strong>この設定が正しくないとプログラムが動かないのでご注意ください。</strong>
                             </Text>
                         </Center>
                     </Flex>
@@ -82,7 +124,6 @@ function Home(){
                             </Box>
                         </Alert>
                     </Center>
-                    
                 </Box>
                 <Box>
                     <Center>
@@ -134,15 +175,15 @@ function Home(){
                         ></Image>
                         <Center ml="15px">
                             <Text>
-                            アプリの右上の<Icon ml="3px" mb="3px" fontSize="20px"><Folder /></Icon>フォルダアイコンをクリックし、<br />
-                            フォルダが存在しているか確認をしてください。<br />
-                            <br />
-                            フォルダの存在を確認できたら、エクスプローラーの表示<br />
-                            という項目をクリックし、表示サイズを変更してください。<br />
-                            おすすめは「<strong>特大アイコン</strong>」または、「<strong>大アイコン</strong>」です。<br />
-                            <br />
-                            <strong>※サムネイルが表示されない場合は、反映が遅れているだけですので<br />
-                            しばらく待ってから確認してください。</strong>
+                                アプリの右上の<Icon ml="3px" mb="3px" fontSize="20px"><Folder /></Icon>フォルダアイコンをクリックし、<br />
+                                フォルダが存在しているか確認をしてください。<br />
+                                <br />
+                                フォルダの存在を確認できたら、エクスプローラーの表示<br />
+                                という項目をクリックし、表示サイズを変更してください。<br />
+                                おすすめは「<strong>特大アイコン</strong>」または、「<strong>大アイコン</strong>」です。<br />
+                                <br />
+                                <strong>※サムネイルが表示されない場合は、反映が遅れているだけですので<br />
+                                しばらく待ってから確認してください。</strong>
                             </Text>
                         </Center>
                     </Flex>
