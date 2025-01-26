@@ -54,7 +54,6 @@ func sendWebsocket(status bool, complement int, processedCount int) {
 	}
 }
 
-//TODO:フルスクリーンボタンの無効化
 //TODO: アップデートの実装をどうにかする
 
 func GoServer() {

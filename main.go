@@ -19,10 +19,7 @@ func main() {
 		Title:  "VRC-Avatar-Library",
 		Width:  1024,
 		Height: 768,
-		MinWidth: 1024,
-		MinHeight: 768,
-		MaxWidth: 1024,
-		MaxHeight: 768,
+		DisableResize: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
