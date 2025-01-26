@@ -96,7 +96,7 @@ func WriteDownloadURLToFile() error {
 		return nil
 	}
 
-	configData["download_url"] = downloadURL
+	configData["downloadUrl"] = downloadURL
 
 	// JSONをエンコード
 	newJSON, err := json.MarshalIndent(configData, "", "  ")
