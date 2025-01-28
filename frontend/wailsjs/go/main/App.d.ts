@@ -9,4 +9,4 @@ export function OpenFolder():Promise<string>;
 
 export function SelectFolder():Promise<string>;
 
-export function WriteURLJson():Promise<void>;
+export function WriteURLAndUpdate():Promise<void>;

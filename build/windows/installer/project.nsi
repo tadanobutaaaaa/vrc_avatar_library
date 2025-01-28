@@ -1,6 +1,6 @@
 Unicode true
 
-####
+#### 
 ## Please note: Template replacements don't work in this file. They are provided with default defines like
 ## mentioned underneath.
 ## If the keyword is not defined, "wails_tools.nsh" will populate them with the values from ProjectInfo.
@@ -16,22 +16,22 @@ Unicode true
 ## > makensis -DARG_WAILS_ARM64_BINARY=..\..\bin\app.exe
 ## For a installer with both architectures:
 ## > makensis -DARG_WAILS_AMD64_BINARY=..\..\bin\app-amd64.exe -DARG_WAILS_ARM64_BINARY=..\..\bin\app-arm64.exe
-####
+#### 
 ## The following information is taken from the ProjectInfo file, but they can be overwritten here.
-####
+#### 
 ## !define INFO_PROJECTNAME    "MyProject" # Default "{{.Name}}"
 ## !define INFO_COMPANYNAME    "MyCompany" # Default "{{.Info.CompanyName}}"
 ## !define INFO_PRODUCTNAME    "MyProduct" # Default "{{.Info.ProductName}}"
 ## !define INFO_PRODUCTVERSION "1.0.0"     # Default "{{.Info.ProductVersion}}"
 ## !define INFO_COPYRIGHT      "Copyright" # Default "{{.Info.Copyright}}"
-###
+### 
 ## !define PRODUCT_EXECUTABLE  "Application.exe"      # Default "${INFO_PROJECTNAME}.exe"
 ## !define UNINST_KEY_NAME     "UninstKeyInRegistry"  # Default "${INFO_COMPANYNAME}${INFO_PRODUCTNAME}"
-####
+#### 
 ## !define REQUEST_EXECUTION_LEVEL "admin"            # Default "admin"  see also https://nsis.sourceforge.io/Docs/Chapter4.html
-####
+#### 
 ## Include the wails tools
-####
+#### 
 !include "wails_tools.nsh"
 
 # The version information for this two must consist of 4 parts
@@ -91,6 +91,24 @@ Section
     CreateShortcut "$SMPROGRAMS\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"
     CreateShortCut "$DESKTOP\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"
 
+    # Include the updater executable
+    File /oname=$INSTDIR\vrc_avatar_library_updater.exe "..\..\bin\vrc_avatar_library_updater.exe"
+
+    # Create Avatars and Images folders in $LOCALAPPDATA\VRC-Avatar-Library if they do not exist
+    IfFileExists "$LOCALAPPDATA\VRC-Avatar-Library\Avatars" "" CreateAvatarsFolder
+    IfFileExists "$LOCALAPPDATA\VRC-Avatar-Library\Images" "" CreateImagesFolder
+
+    CreateAvatarsFolder:
+    CreateDirectory "$LOCALAPPDATA\VRC-Avatar-Library\Avatars"
+    Goto EndCreateAvatarsFolder
+
+    CreateImagesFolder:
+    CreateDirectory "$LOCALAPPDATA\VRC-Avatar-Library\Images"
+    Goto EndCreateImagesFolder
+
+    EndCreateAvatarsFolder:
+    EndCreateImagesFolder:
+
     !insertmacro wails.associateFiles
     !insertmacro wails.associateCustomProtocols
 
@@ -111,4 +129,5 @@ Section "uninstall"
     !insertmacro wails.unassociateCustomProtocols
 
     !insertmacro wails.deleteUninstaller
+    # Do not delete Avatars and Images folders in $LOCALAPPDATA\VRC-Avatar-Library
 SectionEnd

@@ -18,6 +18,6 @@ export function SelectFolder() {
   return window['go']['main']['App']['SelectFolder']();
 }
 
-export function WriteURLJson() {
-  return window['go']['main']['App']['WriteURLJson']();
+export function WriteURLAndUpdate() {
+  return window['go']['main']['App']['WriteURLAndUpdate']();
 }
