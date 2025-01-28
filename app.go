@@ -19,6 +19,11 @@ type App struct {
 	ctx context.Context
 }
 
+var (
+	currentDirectory, _ = os.Getwd()
+	configJson = filepath.Join(currentDirectory, "Config", "config.json")
+)
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
@@ -48,7 +53,7 @@ func (a *App) SelectFolder() string {
 		SearchFolder: result,
 	}
 
-	file, err := os.Create("./Config/config.json")
+	file, err := os.Create(configJson)
 	if err != nil {
 		fmt.Println("設定ファイルを作成できませんでした: ",err)
 	}
@@ -65,7 +70,7 @@ func (a *App) SelectFolder() string {
 }
 
 func (a *App) GetSearchFolder() string {
-	file, err := os.Open("./Config/config.json")
+	file, err := os.Open(configJson)
 	if err != nil {
 		fmt.Println("設定ファイルが見つかりませんでした:", err)
 	}
@@ -81,7 +86,6 @@ func (a *App) GetSearchFolder() string {
 }
 
 func (a *App) OpenFolder() string {
-	currentDirectory, _ := os.Getwd()
 	AvatarsPath := filepath.Join(currentDirectory, "Avatars")
 	info, err := os.Stat(AvatarsPath)
 	if os.IsNotExist(err) || err != nil || !info.IsDir() {
@@ -96,7 +100,7 @@ func (a *App) MakeConfig() {
 			return
 		}
 	}
-	if _, err := os.Stat("./Config/config.json"); os.IsNotExist(err) {
+	if _, err := os.Stat(configJson); os.IsNotExist(err) {
 		home, err := os.UserHomeDir()
 		if (err != nil) {
 			fmt.Println("ユーザーホームディレクトリを取得できませんでした: ",err)
@@ -107,7 +111,7 @@ func (a *App) MakeConfig() {
 			SearchFolder: DownloadPath,
 		}
 
-		file, err := os.Create("./Config/config.json")
+		file, err := os.Create(configJson)
 		if err != nil {
 			fmt.Println("設定ファイルを作成できませんでした: ",err)
 		}
@@ -122,8 +126,16 @@ func (a *App) MakeConfig() {
 	}
 }
 
-func (a *App) WriteURLJson() error {
-    return WriteDownloadURLToFile()
+func (a *App) WriteURLAndUpdate() error {
+	if err := WriteDownloadURLToFile(); err != nil {
+		fmt.Println("ダウンロードURLの書き込みに失敗しました:", err)
+		return err
+	}
+	if err := ExecuteUpdater(a); err != nil {
+		fmt.Println("アップデータの実行に失敗しました:", err)
+		return err
+	}
+	return nil
 }
 
 // startup is called when the app starts. The context is saved
