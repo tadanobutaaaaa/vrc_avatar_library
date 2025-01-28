@@ -72,7 +72,7 @@ ManifestDPIAware true
 
 Name "${INFO_PRODUCTNAME}"
 OutFile "..\..\bin\${INFO_PROJECTNAME}-${ARCH}-installer.exe" # Name of the installer's file.
-InstallDir "$LOCALAPPDATA\${INFO_PRODUCTNAME}" # Default installing folder ($LOCALAPPDATA is AppData\Local folder).
+InstallDir "$LOCALAPPDATA\Programs\VRC-Avatar-Library" # Default installing folder ($LOCALAPPDATA\Programs\VRC-Avatar-Library).
 ShowInstDetails show # This will always show the installation details.
 
 Function .onInit
