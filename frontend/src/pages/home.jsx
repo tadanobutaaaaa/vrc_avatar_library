@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { WriteURLJson } from '../../wailsjs/go/main/App';
+import { WriteURLAndUpdate } from '../../wailsjs/go/main/App';
 import { BookText, Settings, Folder, CircleHelp } from 'lucide-react';
 import { BrowserOpenURL, EventsOn } from "../../wailsjs/runtime/runtime";
 import { Heading, Center, Box, Text, Image, Link, Flex, Icon }from "@chakra-ui/react";
+import { toaster } from "@/components/ui/toaster"
 import Header from '../components/Header';
 import { Alert } from "@/components/ui/alert"
 import goWebSocket from '../hooks/goWebSocket';
@@ -18,13 +19,21 @@ function Home(){
         setIsUpdateAvailable(true)
         setLatestVersion(data.version)
         setLatestVersionURL(data.url)
-        console.log(data.url)
     })
 
-    const handleUpdateNow = () => {
+    const handleUpdateNow = async () => {
         //アップデートを実行する処理の実行
-        setIsUpdateAvailable(false)
-        WriteURLJson()
+        try{
+            setIsUpdateAvailable(false)
+            await WriteURLAndUpdate()
+        } catch(e) {
+            console.log(e)
+            toaster.create({
+                title: "アップデートに失敗しました",
+                description: "アプリを再起動し、再度お試しください。",
+                type: "error",
+            })
+        }
     }
 
     const handleUpdateLater = () => {
