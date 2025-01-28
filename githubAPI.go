@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -29,7 +31,7 @@ var downloadURL string
 
 func GithubAPI(a *App) {
 	latestRelease, err := getLatestRelease()
-	if err != nil {
+	if (err != nil) {
 		fmt.Println("エラー:", err)
 		return
 	}
@@ -59,7 +61,7 @@ func GithubAPI(a *App) {
 			"url":     latestRelease.Assets[0].URL,
 		}
 
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
 		runtime.EventsEmit(a.ctx, "updateAvailable", data)
 	} else {
 		fmt.Println("アプリは最新です。")
@@ -82,8 +84,7 @@ func getLatestRelease() (*Release, error) {
 }
 
 func WriteDownloadURLToFile() error {
-	configPath := "./Config/config.json"
-	file, err := os.ReadFile(configPath)
+	file, err := os.ReadFile(configJson)
 	if err != nil {
 		fmt.Println("ファイルを開けませんでした:", err)
 		return err
@@ -107,13 +108,26 @@ func WriteDownloadURLToFile() error {
 
 	fmt.Println("configData: ", configData)
 
-	err = os.WriteFile(configPath, newJSON, 0644)
+	err = os.WriteFile(configJson, newJSON, 0644)
 	if err != nil {
 		fmt.Println("ファイルに書き込めませんでした:", err)
 		return nil
 	}
 
 	fmt.Println("ダウンロードURLをファイルに書き込みました。")
-
 	return nil
 }
+
+func ExecuteUpdater(a *App) error {
+	updaterPath := filepath.Join(currentDirectory, "vrc_avatar_library_updater.exe")
+	cmd := exec.Command(updaterPath)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: false}
+	err := cmd.Start()
+	if err != nil {
+		fmt.Println("アップデータの実行に失敗しました:", err)
+		return err
+	}
+	fmt.Println("アップデータを実行しました。")
+	os.Exit(0)
+	return nil
+}	
