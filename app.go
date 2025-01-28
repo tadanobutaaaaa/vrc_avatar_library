@@ -23,6 +23,9 @@ type App struct {
 var (
 	currentDirectory, _ = os.Getwd()
 	configJson = filepath.Join(currentDirectory, "Config", "config.json")
+	UserHomeDir, _ = os.UserHomeDir()
+	AvatarsPath = filepath.Join(UserHomeDir, "AppData", "Local", "VRC-Avatar-Library", "Avatars")
+	ImagesPath = filepath.Join(UserHomeDir, "AppData", "Local", "VRC-Avatar-Library", "Images")
 )
 
 // NewApp creates a new App application struct
@@ -96,7 +99,6 @@ func (a *App) GetSearchFolder() string {
 }
 
 func (a *App) OpenFolder() string {
-	AvatarsPath := filepath.Join(currentDirectory, "Avatars")
 	info, err := os.Stat(AvatarsPath)
 	if os.IsNotExist(err) || err != nil || !info.IsDir() {
         return "Error"
@@ -111,11 +113,7 @@ func (a *App) MakeConfig() {
 		}
 	}
 	if _, err := os.Stat(configJson); os.IsNotExist(err) {
-		home, err := os.UserHomeDir()
-		if (err != nil) {
-			fmt.Println("ユーザーホームディレクトリを取得できませんでした: ",err)
-		}
-		DownloadPath := filepath.Join(home, "Downloads")
+		DownloadPath := filepath.Join(UserHomeDir, "Downloads")
 
 		initialConfig := Config{
 			SearchFolder: DownloadPath,
