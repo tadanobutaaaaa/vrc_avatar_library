@@ -31,6 +31,10 @@ type Booth struct {
 	Src  string `json:"src"`
 }
 
+type Setting struct {
+	SearchFolder string `json:"searchFolder"`
+}
+
 var (
 	mutex   sync.Mutex
 	clients = make(map[*websocket.Conn]bool)
@@ -59,18 +63,23 @@ func sendWebsocket(status bool, complement int, processedCount int) {
 func GoServer() {
 	r := gin.Default()
 
-	home, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	DownloadPath := filepath.Join(home, "Downloads")
-	currentPath, _ := os.Getwd()
-	currentAvatarsPath := filepath.Join(currentPath, "Avatars")
-	currentImagesPath := filepath.Join(currentPath, "Images")
+	file, err := os.Open(configJson)
+    if err != nil {
+        fmt.Println("設定ファイルが見つかりませんでした: ",err)
+    }
+    defer file.Close()
+
+    var config Setting
+    decoder := json.NewDecoder(file)
+    if err := decoder.Decode(&config); err != nil {
+        fmt.Println("設定ファイルの読み込みに失敗しました: ",err)
+    }
+	
+    searchFolder := config.SearchFolder
 
 	err = r.SetTrustedProxies(nil)
 	if err != nil {
-		panic(err)
+		fmt.Println("Error:", err)
 	}
 
 	wsupgrader := websocket.Upgrader{
@@ -135,17 +144,6 @@ func GoServer() {
 	})
 
 	r.POST("/send/fileImages", func(c *gin.Context) {
-		if _, err := os.Stat("Avatars"); os.IsNotExist(err) {
-			if err := os.Mkdir("Avatars", 0750); err != nil {
-				return
-			}
-		}
-		if _, err := os.Stat("Images"); os.IsNotExist(err) {
-			if err := os.Mkdir("Images", 0750); err != nil {
-				return
-			}
-		}
-
 		var jsonData Root
 
 		if err := c.ShouldBindJSON(&jsonData); err != nil {
@@ -155,9 +153,9 @@ func GoServer() {
 			return
 		}
 
-		entries, err := os.ReadDir(DownloadPath)
+		entries, err := os.ReadDir(searchFolder)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println("ディレクトリの読み込みに失敗しました: ",err)
 		}
 
 		 // 条件に合うエントリの件数をカウント
@@ -183,7 +181,7 @@ func GoServer() {
 					for name, booth := range jsonEntry {
 						if entry.IsDir() && strings.Contains(name, entry.Name()) {
 							//サムネイル画像が保存されているフォルダがあるか確認する
-							inAvatarsFolder := filepath.Join(currentAvatarsPath, booth.Id)
+							inAvatarsFolder := filepath.Join(AvatarsPath, booth.Id)
 							if _, err := os.Stat(inAvatarsFolder); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
 								processedCount++
@@ -203,7 +201,7 @@ func GoServer() {
 							defer resp.Body.Close()
 
 							//サムネイル画像を保存する
-							jpgThumbnail := filepath.Join(currentImagesPath, booth.Id+".jpg")
+							jpgThumbnail := filepath.Join(ImagesPath, booth.Id+".jpg")
 
 							out, err := os.Create(jpgThumbnail)
 							if err != nil {
@@ -212,7 +210,7 @@ func GoServer() {
 							defer out.Close()
 							io.Copy(out, resp.Body)
 
-							icoThumbnail := filepath.Join(currentAvatarsPath, booth.Id)
+							icoThumbnail := filepath.Join(AvatarsPath, booth.Id)
 							icoThumbnail = filepath.Join(icoThumbnail, booth.Id+".ico")
 
 							//icoファイルを作成する
@@ -267,7 +265,7 @@ func GoServer() {
 								return
 							}
 
-							if err := os.Rename(filepath.Join(DownloadPath, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
+							if err := os.Rename(filepath.Join(searchFolder, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
 								return
 							}
 
