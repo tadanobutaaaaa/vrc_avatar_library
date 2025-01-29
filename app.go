@@ -24,8 +24,8 @@ var (
 	currentDirectory, _ = os.Getwd()
 	configJson = filepath.Join(currentDirectory, "Config", "config.json")
 	UserHomeDir, _ = os.UserHomeDir()
-	AvatarsPath = filepath.Join("C:", "ProgramData", "VRC-Avatar-Library", "Avatars")
-	ImagesPath = filepath.Join("C:", "ProgramData", "VRC-Avatar-Library", "Images")
+	AvatarsPath = filepath.Join("C:\\", "ProgramData", "VRC-Avatar-Library", "Avatars")
+	ImagesPath = filepath.Join("C:\\", "ProgramData", "VRC-Avatar-Library", "Images")
 )
 
 // NewApp creates a new App application struct
@@ -100,6 +100,7 @@ func (a *App) GetSearchFolder() string {
 
 func (a *App) OpenFolder() string {
 	info, err := os.Stat(AvatarsPath)
+	fmt.Println("AvatarsPath", AvatarsPath)
 	if os.IsNotExist(err) || err != nil || !info.IsDir() {
         return "Error"
     }
