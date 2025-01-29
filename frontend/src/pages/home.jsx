@@ -192,7 +192,7 @@ function Home(){
                                 おすすめは「<strong>特大アイコン</strong>」または、「<strong>大アイコン</strong>」です。<br />
                                 <br />
                                 <strong>※サムネイルが表示されない場合は、反映が遅れているだけですので<br />
-                                しばらく待ってから確認してください。</strong>
+                                左上のリロードボタンをクリックしてください。</strong>
                             </Text>
                         </Center>
                     </Flex>
