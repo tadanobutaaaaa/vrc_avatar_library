@@ -24,8 +24,8 @@ var (
 	currentDirectory, _ = os.Getwd()
 	configJson = filepath.Join(currentDirectory, "Config", "config.json")
 	UserHomeDir, _ = os.UserHomeDir()
-	AvatarsPath = filepath.Join(UserHomeDir, "AppData", "Local", "VRC-Avatar-Library", "Avatars")
-	ImagesPath = filepath.Join(UserHomeDir, "AppData", "Local", "VRC-Avatar-Library", "Images")
+	AvatarsPath = filepath.Join("C:", "ProgramData", "VRC-Avatar-Library", "Avatars")
+	ImagesPath = filepath.Join("C:", "ProgramData", "VRC-Avatar-Library", "Images")
 )
 
 // NewApp creates a new App application struct
