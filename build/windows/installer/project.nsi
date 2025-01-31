@@ -84,7 +84,7 @@ Section
 
     !insertmacro wails.webview2runtime
 
-    SetOutPath $INSTDIR
+    SetOutPath "$INSTDIR"
 
     !insertmacro wails.files
 
@@ -94,19 +94,17 @@ Section
     # Include the updater executable
     File /oname=$INSTDIR\vrc_avatar_library_updater.exe "..\..\bin\vrc_avatar_library_updater.exe"
 
-    # Create Avatars and Images folders in $LOCALAPPDATA\VRC-Avatar-Library if they do not exist
-    IfFileExists "$LOCALAPPDATA\VRC-Avatar-Library\Avatars" "" CreateAvatarsFolder
-    IfFileExists "$LOCALAPPDATA\VRC-Avatar-Library\Images" "" CreateImagesFolder
-
     CreateAvatarsFolder:
-    CreateDirectory "$LOCALAPPDATA\VRC-Avatar-Library\Avatars"
+    CreateDirectory "$INSTDIR\Avatars"
     Goto EndCreateAvatarsFolder
 
     CreateImagesFolder:
-    CreateDirectory "$LOCALAPPDATA\VRC-Avatar-Library\Images"
+    CreateDirectory "$INSTDIR\Images"
     Goto EndCreateImagesFolder
 
     EndCreateAvatarsFolder:
+    Goto CreateImagesFolder
+
     EndCreateImagesFolder:
 
     !insertmacro wails.associateFiles
@@ -129,5 +127,4 @@ Section "uninstall"
     !insertmacro wails.unassociateCustomProtocols
 
     !insertmacro wails.deleteUninstaller
-    # Do not delete Avatars and Images folders in $LOCALAPPDATA\VRC-Avatar-Library
 SectionEnd
