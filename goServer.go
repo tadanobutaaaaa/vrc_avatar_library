@@ -182,87 +182,86 @@ func GoServer() {
 						if entry.IsDir() && strings.Contains(name, entry.Name()) {
 							//サムネイル画像が保存されているフォルダがあるか確認する
 							inAvatarsFolder := filepath.Join(AvatarsPath, booth.Id)
-							if _, err := os.Stat(inAvatarsFolder); err == nil {
+							if _, err := os.Stat(filepath.Join(inAvatarsFolder, entry.Name())); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
 								processedCount++
 								continue
 							}
 
-							//サムネイル画像が存在しない場合は、ダウンロードする
-							if err := os.Mkdir(inAvatarsFolder, 0750); err != nil {
-								return
-							}
+							if _, err := os.Stat(inAvatarsFolder); os.IsNotExist(err) {
+								os.Mkdir(inAvatarsFolder, 0750)
 
-							url := booth.Src
-							resp, err := http.Get(url)
-							if err != nil {
-								return
-							}
-							defer resp.Body.Close()
+								url := booth.Src
+								resp, err := http.Get(url)
+								if err != nil {
+									return
+								}
+								defer resp.Body.Close()
 
-							//サムネイル画像を保存する
-							jpgThumbnail := filepath.Join(ImagesPath, booth.Id+".jpg")
+								//サムネイル画像を保存する
+								jpgThumbnail := filepath.Join(ImagesPath, booth.Id+".jpg")
 
-							out, err := os.Create(jpgThumbnail)
-							if err != nil {
-								return
-							}
-							defer out.Close()
-							io.Copy(out, resp.Body)
+								out, err := os.Create(jpgThumbnail)
+								if err != nil {
+									return
+								}
+								defer out.Close()
+								io.Copy(out, resp.Body)
 
-							icoThumbnail := filepath.Join(AvatarsPath, booth.Id)
-							icoThumbnail = filepath.Join(icoThumbnail, booth.Id+".ico")
+								icoThumbnail := filepath.Join(AvatarsPath, booth.Id)
+								icoThumbnail = filepath.Join(icoThumbnail, booth.Id+".ico")
 
-							//icoファイルを作成する
-							file, err := os.Open(jpgThumbnail)
-							if err != nil {
-								return
-							}
-							defer file.Close()
+								//icoファイルを作成する
+								file, err := os.Open(jpgThumbnail)
+								if err != nil {
+									return
+								}
+								defer file.Close()
 
-							img, _, err := image.Decode(file)
-							if err != nil {
-								return
-							}
+								img, _, err := image.Decode(file)
+								if err != nil {
+									return
+								}
 
-							resizedImg := image.NewRGBA(image.Rect(0, 0, 256, 256))
-							draw.NearestNeighbor.Scale(resizedImg, resizedImg.Bounds(), img, img.Bounds(), draw.Over, nil)
+								resizedImg := image.NewRGBA(image.Rect(0, 0, 256, 256))
+								draw.NearestNeighbor.Scale(resizedImg, resizedImg.Bounds(), img, img.Bounds(), draw.Over, nil)
 
-							icoFile, err := os.Create(icoThumbnail)
-							if err != nil {
-								return
-							}
+								icoFile, err := os.Create(icoThumbnail)
+								if err != nil {
+									return
+								}
 
-							err = ico.Encode(icoFile, resizedImg)
-							if err != nil {
-								return
-							}
+								err = ico.Encode(icoFile, resizedImg)
+								if err != nil {
+									return
+								}
 
-							//iniファイルに書き込む
-							desktopIniPath := filepath.Join(inAvatarsFolder, "desktop.ini")
+								//iniファイルに書き込む
+								desktopIniPath := filepath.Join(inAvatarsFolder, "desktop.ini")
 
-							cfg := ini.Empty()
-							cfg.Section(".ShellClassInfo").Key("IconResource").SetValue(fmt.Sprintf("\"%s.ico\",0", booth.Id))
-							if err := cfg.SaveTo(desktopIniPath); err != nil {
-								return
-							}
+								cfg := ini.Empty()
+								cfg.Section(".ShellClassInfo").Key("IconResource").SetValue(fmt.Sprintf("\"%s.ico\",0", booth.Id))
+								if err := cfg.SaveTo(desktopIniPath); err != nil {
+									return
+								}
 
-							cmd := exec.Command("attrib", "+h", desktopIniPath)
-							cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-							if err := cmd.Run(); err != nil {
-								return
-							}
+								cmd := exec.Command("attrib", "+h", desktopIniPath)
+								cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+								if err := cmd.Run(); err != nil {
+									return
+								}
 
-							cmd = exec.Command("attrib", "+s", inAvatarsFolder)
-							cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-							if err := cmd.Run(); err != nil {
-								return
-							}
+								cmd = exec.Command("attrib", "+s", inAvatarsFolder)
+								cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+								if err := cmd.Run(); err != nil {
+									return
+								}
 
-							cmd = exec.Command("attrib", "+h", icoThumbnail)
-							cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-							if err := cmd.Run(); err != nil {
-								return
+								cmd = exec.Command("attrib", "+h", icoThumbnail)
+								cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+								if err := cmd.Run(); err != nil {
+									return
+								}
 							}
 
 							if err := os.Rename(filepath.Join(searchFolder, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
