@@ -62,25 +62,7 @@ func sendWebsocket(status bool, complement int, processedCount int) {
 
 func GoServer() {
 	r := gin.Default()
-
-	file, err := os.Open(configJson)
-    if err != nil {
-        fmt.Println("設定ファイルが見つかりませんでした: ",err)
-    }
-    defer file.Close()
-
-    var config Setting
-    decoder := json.NewDecoder(file)
-    if err := decoder.Decode(&config); err != nil {
-        fmt.Println("設定ファイルの読み込みに失敗しました: ",err)
-    }
-	
-    searchFolder := config.SearchFolder
-
-	err = r.SetTrustedProxies(nil)
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
+	r.SetTrustedProxies(nil)
 
 	wsupgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -146,17 +128,27 @@ func GoServer() {
 	r.POST("/send/fileImages", func(c *gin.Context) {
 		var jsonData Root
 
-		if err := c.ShouldBindJSON(&jsonData); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+        if err := c.ShouldBindJSON(&jsonData); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{
+                "error": err.Error(),
+            })
+            return
+        }
+		
+		file, err := os.Open(configJson)
+		if err != nil {
+			fmt.Println("設定ファイルが見つかりませんでした:", err)
+		}
+		defer file.Close()
+
+		var config Setting
+		decoder := json.NewDecoder(file)
+		if err := decoder.Decode(&config); err != nil {
+			fmt.Println("設定ファイルの読み込みに失敗しました:", err)
 		}
 
+		searchFolder := config.SearchFolder
 		entries, err := os.ReadDir(searchFolder)
-		if err != nil {
-			fmt.Println("ディレクトリの読み込みに失敗しました: ",err)
-		}
 
 		 // 条件に合うエントリの件数をカウント
 		for _, entry := range entries {

@@ -36,9 +36,6 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
-	// 最初にアプリを最前面に設定
-	runtime.WindowSetAlwaysOnTop(a.ctx, true)
-
 	// 少しだけ最前面に表示（例えば100ミリ秒後に解除）
 	go func() {
 		time.Sleep(100 * time.Millisecond) // 100ミリ秒後
