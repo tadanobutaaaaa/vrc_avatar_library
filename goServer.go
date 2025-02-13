@@ -22,6 +22,7 @@ import (
 	"github.com/gorilla/websocket"
 	"golang.org/x/image/draw"
 	"gopkg.in/ini.v1"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type Root map[string][]map[string]Booth
@@ -29,10 +30,6 @@ type Root map[string][]map[string]Booth
 type Booth struct {
 	Id   string `json:"id"`
 	Src  string `json:"src"`
-}
-
-type Setting struct {
-	SearchFolder string `json:"searchFolder"`
 }
 
 var (
@@ -60,7 +57,7 @@ func sendWebsocket(status bool, complement int, processedCount int) {
 
 //TODO: アップデートの実装をどうにかする
 
-func GoServer() {
+func GoServer(a *App) {
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 
@@ -141,15 +138,39 @@ func GoServer() {
 		}
 		defer file.Close()
 
-		var config Setting
+		var config Config
 		decoder := json.NewDecoder(file)
 		if err := decoder.Decode(&config); err != nil {
 			fmt.Println("設定ファイルの読み込みに失敗しました:", err)
 		}
 
 		searchFolder := config.SearchFolder
+		configAvatarsPath := config.MoveFolder
+
+		AvatarsPath := filepath.Join(configAvatarsPath, "VAL_Avatars")
+
+		if _, err := os.Stat(AvatarsPath); os.IsNotExist(err) {
+			if err := os.Mkdir(AvatarsPath, 0750); err != nil {
+				return
+			}
+		}
+
+		imagesPath := filepath.Join(configAvatarsPath, "VAL_Images")
+		if _, err := os.Stat(imagesPath); os.IsNotExist(err) {
+			if err := os.Mkdir(imagesPath, 0750); err != nil {
+				return
+			}
+		}
+
+		if filepath.VolumeName(searchFolder) != filepath.VolumeName(configAvatarsPath) {
+			fmt.Println("ドライブが異なるため、処理を中断します。")
+			runtime.EventsEmit(a.ctx, "error", "Rename")
+			return 
+		}
+
 		entries, err := os.ReadDir(searchFolder)
 
+		fmt.Println("数を検索しています...")
 		 // 条件に合うエントリの件数をカウント
 		for _, entry := range entries {
 			for key := range jsonData {
@@ -167,11 +188,13 @@ func GoServer() {
 	
 		//FIXME: サムネイル付与時間の修正(反映まで時間がかかる)
 
+		fmt.Println("サムネイル画像を作成しています...")
 		for _, entry := range entries {
 			for key := range jsonData {
 				for _, jsonEntry := range jsonData[key] {
 					for name, booth := range jsonEntry {
 						if entry.IsDir() && strings.Contains(name, entry.Name()) {
+							fmt.Println("サムネイル画像を作成しています:", entry.Name())
 							//サムネイル画像が保存されているフォルダがあるか確認する
 							inAvatarsFolder := filepath.Join(AvatarsPath, booth.Id)
 							if _, err := os.Stat(filepath.Join(inAvatarsFolder, entry.Name())); err == nil {
@@ -191,7 +214,7 @@ func GoServer() {
 								defer resp.Body.Close()
 
 								//サムネイル画像を保存する
-								jpgThumbnail := filepath.Join(ImagesPath, booth.Id+".jpg")
+								jpgThumbnail := filepath.Join(imagesPath, booth.Id + ".jpg")
 
 								out, err := os.Create(jpgThumbnail)
 								if err != nil {
@@ -200,8 +223,7 @@ func GoServer() {
 								defer out.Close()
 								io.Copy(out, resp.Body)
 
-								icoThumbnail := filepath.Join(AvatarsPath, booth.Id)
-								icoThumbnail = filepath.Join(icoThumbnail, booth.Id+".ico")
+								icoThumbnail := filepath.Join(inAvatarsFolder, booth.Id + ".ico")
 
 								//icoファイルを作成する
 								file, err := os.Open(jpgThumbnail)
@@ -257,6 +279,7 @@ func GoServer() {
 							}
 
 							if err := os.Rename(filepath.Join(searchFolder, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
+								fmt.Println("ファイルの移動に失敗しました:", err)
 								return
 							}
 

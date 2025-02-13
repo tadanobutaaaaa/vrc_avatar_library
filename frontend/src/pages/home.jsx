@@ -15,10 +15,20 @@ function Home(){
     const [latestVersion, setLatestVersion] = useState("")
     const [latestVersionURL, setLatestVersionURL] = useState("")
 
-    EventsOn("updateAvailable", (data) => {
+    EventsOn("updateAvailable", (data) => { 
         setIsUpdateAvailable(true)
         setLatestVersion(data.version)
         setLatestVersionURL(data.url)
+    })
+    
+    EventsOn("error", () => {
+        console.log("errorが出ました")
+        toaster.create({
+            title: "ドライブを跨いだ処理が開始されたためエラーが発生しました",
+            description: "設定画面の「移動先のフォルダ」から設定を変更してください。",
+            duration: 10000,
+            type: "error",
+        })
     })
 
     const handleUpdateNow = async () => {
