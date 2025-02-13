@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import useWebSocket from '../hooks/goWebSocket';
 import Header from '../components/Header';
+import useWebSocket from '../hooks/goWebSocket';
 import { Center, HStack, Text, Flex } from "@chakra-ui/react";
 import { ProgressBar, ProgressRoot, ProgressLabel, ProgressValueText } from "@/components/ui/progress"
 
@@ -31,22 +31,9 @@ function Processing(){
                         <ProgressValueText>{processedPercent}%</ProgressValueText>
                     </HStack>
                     <Flex justify="flex-end" mr="39px" mt="6px">
-                        <Text mr="4px">残り処理時間:</Text>
-                        {
-                            unProcessedCount <= 60 ? (
-                                <>
-                                    <Text><strong>{unProcessedCount}</strong></Text>
-                                    <Text>秒</Text>
-                                </>
-                            ) : (
-                                <>
-                                    <Text><storong>{Math.floor(unProcessedCount / 60)}</storong></Text>
-                                    <Text>分</Text>
-                                    <Text><strong>{unProcessedCount % 60}</strong></Text>
-                                    <Text>秒</Text>
-                                </>
-                            )
-                        }
+                        <Text mr="4px">残り個数:</Text>
+                        <Text><strong>{unProcessedCount}</strong></Text>
+                        <Text>個</Text>
                     </Flex> 
                 </ProgressRoot>
             </Center>
