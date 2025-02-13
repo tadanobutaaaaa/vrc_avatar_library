@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from '../components/Header';
-import { SelectFolder, GetSearchFolder} from '../../wailsjs/go/main/App';
-import { FolderSearch } from 'lucide-react';
+import { SelectFolder, GetSearchFolder, SelectMoveFolder, GetMoveFolder } from '../../wailsjs/go/main/App';
+import { FolderSearch, Folder } from 'lucide-react';
 import { IconButton, Flex, Text, Box } from "@chakra-ui/react"; 
 import { Search } from 'lucide-react';
 import { useColorModeValue } from "@/components/ui/color-mode"
@@ -12,6 +12,7 @@ function SetupProcess() {
     goWebSocket("/processing")
 
     const [searchFolder, setSearchFolder] = useState("")
+    const [moveFolder, setMoveFolder] = useState("")
 
     const bgColor = useColorModeValue("gray.100", "gray.400")
 
@@ -21,13 +22,27 @@ function SetupProcess() {
                 setSearchFolder(res)
             })
         }
+        const fetchMoveFolder = async () => {
+            await GetMoveFolder().then((res) => {
+                setMoveFolder(res)
+            })
+        }
         fetchSearchFolder()
+        fetchMoveFolder()
     }, [])
 
     const SelectFolderProcess = () => {
         SelectFolder().then((res) => {
             if (res !== "Error") {
                 setSearchFolder(res)
+            }
+        })
+    }
+
+    const SelectMoveFolderProcess = () => {
+        SelectMoveFolder().then((res) => {
+            if (res !== "Error") {
+                setMoveFolder(res)
             }
         })
     }
@@ -60,6 +75,38 @@ function SetupProcess() {
                         </IconButton>
                     </Flex>
                     <Text fontWeight="semibold" mt="5px">Boothでダウンロードした商品が入っているフォルダを選択してください</Text>
+                </Box>
+            </Box>
+            <Box ml="50px" mt="30px">
+                <Box background="#c0c0c0" w="85%" p="20px" borderRadius="md">
+                    <Flex alignItems="center" gap="6px" mb="5px">
+                        <Folder />
+                        <Text textStyle="2xl" fontWeight="bold">移動先のフォルダ</Text>
+                    </Flex>
+                    <Flex gap="4px" alignItems="center">
+                        <Flex maxW="800px">
+                            <Text 
+                                textStyle="md" 
+                                bgColor={bgColor}
+                                borderRadius="sm"
+                                py="3px"
+                                px="6px"
+                                truncate>{moveFolder}</Text>
+                        </Flex>
+                        <IconButton 
+                            onClick={() => {SelectMoveFolderProcess()}}
+                            variant="ghost"
+                            aria-label='Toggle color mode'
+                            >
+                            <FolderSearch />
+                        </IconButton>
+                    </Flex>
+                    <Text fontWeight="semibold" mt="5px">
+                        商品の移動先のフォルダを選択してください
+                    </Text>
+                    <Text fontWeight="semibold" color="red.600">
+                        ※商品が存在するドライブと同一のドライブを選択してください
+                    </Text>
                 </Box>
             </Box>
         </>

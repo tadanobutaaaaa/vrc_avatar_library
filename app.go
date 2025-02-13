@@ -3,16 +3,25 @@ package main
 import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"os"
-	"fmt"
-	"time"
 	"context"
-	"path/filepath"
 	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"time"
 )
+
+type ConfigSearchFolder struct {
+	SearchFolder string `json:"searchFolder"`
+}
+
+type ConfigMoveFolder struct {
+	MoveFolder string `json:"moveFolder"`
+}
 
 type Config struct {
 	SearchFolder string `json:"searchFolder"`
+	MoveFolder   string `json:"moveFolder"`
 }
 
 // App struct
@@ -24,8 +33,7 @@ var (
 	currentDirectory, _ = os.Getwd()
 	configJson = filepath.Join(currentDirectory, "Config", "config.json")
 	UserHomeDir, _ = os.UserHomeDir()
-	AvatarsPath = filepath.Join(currentDirectory, "Avatars")
-	ImagesPath = filepath.Join(currentDirectory, "Images")
+	AvatarsPath = filepath.Join(currentDirectory)
 )
 
 // NewApp creates a new App application struct
@@ -44,10 +52,53 @@ func (a *App) startup(ctx context.Context) {
 
 	go a.MakeConfig()
 	go GithubAPI(a)
-	go GoServer()
+	go GoServer(a)
 }
 
 func (a *App) SelectFolder() string {
+	result, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "フォルダを選択",
+	})
+	if err != nil {
+		fmt.Println("フォルダを選択する際にエラーが発生しました: ", err)
+	}
+
+	if result == "" {
+		return "Error"
+	}
+
+	file, err := os.ReadFile(configJson)
+	if err != nil {
+		fmt.Println("ファイルを開けませんでした:", err)
+	}
+
+	var configData map[string]interface{}
+	err = json.Unmarshal(file, &configData)
+	if err != nil {
+		fmt.Println("JSONのデコードに失敗しました:", err)
+	}
+
+	configData["searchFolder"] = result
+
+	// JSONをエンコード
+	newJSON, err := json.MarshalIndent(configData, "", "  ")
+	if err != nil {
+		fmt.Println("JSONのエンコードに失敗しました:", err)
+	}
+
+	fmt.Println("configData: ", configData)
+
+	err = os.WriteFile(configJson, newJSON, 0644)
+	if err != nil {
+		fmt.Println("ファイルに書き込めませんでした:", err)
+	}
+
+	fmt.Println("検索フォルダをファイルに書き込みました。")
+	return result
+}
+
+//TODO:ここに移動先フォルダを選べる処理の追加
+func (a *App) SelectMoveFolder() string {
 	result, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "フォルダを選択",
 	})
@@ -59,25 +110,36 @@ func (a *App) SelectFolder() string {
 		return "Error"
 	}
 
-	initialConfig := Config{
-		SearchFolder: result,
-	}
-
-	file, err := os.Create(configJson)
+	file, err := os.ReadFile(configJson)
 	if err != nil {
-		fmt.Println("設定ファイルを作成できませんでした: ",err)
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ") // 見やすいようにインデントを設定
-	if err := encoder.Encode(initialConfig); err != nil {
-		fmt.Printf("JSON エンコードエラー: %v\n", err)
+		fmt.Println("ファイルを開けませんでした:", err)
 	}
 
-	fmt.Println(result)
+	var configData map[string]interface{}
+	err = json.Unmarshal(file, &configData)
+	if err != nil {
+		fmt.Println("JSONのデコードに失敗しました:", err)
+	}
+
+	configData["moveFolder"] = result
+
+	// JSONをエンコード
+	newJSON, err := json.MarshalIndent(configData, "", "  ")
+	if err != nil {
+		fmt.Println("JSONのエンコードに失敗しました:", err)
+	}
+
+	fmt.Println("configData: ", configData)
+
+	err = os.WriteFile(configJson, newJSON, 0644)
+	if err != nil {
+		fmt.Println("ファイルに書き込めませんでした:", err)
+	}
+
+	fmt.Println("移動先のフォルダをファイルに書き込みました。")
 	return result
 }
+
 
 func (a *App) GetSearchFolder() string {
 	file, err := os.Open(configJson)
@@ -86,13 +148,29 @@ func (a *App) GetSearchFolder() string {
 	}
 	defer file.Close()
 
-	var config Config
+	var config ConfigSearchFolder
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&config); err != nil {
 		fmt.Println("設定ファイルの読み込みに失敗しました:", err)
 	}
 
 	return config.SearchFolder
+}
+
+func (a *App) GetMoveFolder() string {
+	file, err := os.Open(configJson)
+	if err != nil {
+		fmt.Println("設定ファイルが見つかりませんでした:", err)
+	}
+	defer file.Close()
+
+	var config ConfigMoveFolder
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&config); err != nil {
+		fmt.Println("設定ファイルの読み込みに失敗しました:", err)
+	}
+
+	return config.MoveFolder
 }
 
 func (a *App) OpenFolder() string {
@@ -115,6 +193,7 @@ func (a *App) MakeConfig() {
 
 		initialConfig := Config{
 			SearchFolder: DownloadPath,
+			MoveFolder:   AvatarsPath,
 		}
 
 		file, err := os.Create(configJson)
@@ -129,6 +208,37 @@ func (a *App) MakeConfig() {
 			fmt.Printf("JSON エンコードエラー: %v\n", err)
 			return
 		}
+	} else {
+		file, err := os.ReadFile(configJson)
+        if err != nil {
+            fmt.Println("設定ファイルを開けませんでした:", err)
+            return
+        }
+
+        var configData map[string]interface{}
+        err = json.Unmarshal(file, &configData)
+        if err != nil {
+            fmt.Println("JSONのデコードに失敗しました:", err)
+            return
+        }
+
+        // MoveFolder要素が存在しない場合は追加
+        if _, ok := configData["moveFolder"]; !ok {
+            configData["moveFolder"] = AvatarsPath
+        }
+
+        // JSONをエンコード
+        newJSON, err := json.MarshalIndent(configData, "", "  ")
+        if err != nil {
+            fmt.Println("JSONのエンコードに失敗しました:", err)
+            return
+        }
+
+        err = os.WriteFile(configJson, newJSON, 0644)
+        if err != nil {
+            fmt.Println("ファイルに書き込めませんでした:", err)
+            return
+        }
 	}
 }
 
