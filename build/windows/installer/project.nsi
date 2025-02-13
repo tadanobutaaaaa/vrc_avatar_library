@@ -94,19 +94,6 @@ Section
     # Include the updater executable
     File /oname=$INSTDIR\vrc_avatar_library_updater.exe "..\..\bin\vrc_avatar_library_updater.exe"
 
-    CreateAvatarsFolder:
-    CreateDirectory "$INSTDIR\Avatars"
-    Goto EndCreateAvatarsFolder
-
-    CreateImagesFolder:
-    CreateDirectory "$INSTDIR\Images"
-    Goto EndCreateImagesFolder
-
-    EndCreateAvatarsFolder:
-    Goto CreateImagesFolder
-
-    EndCreateImagesFolder:
-
     !insertmacro wails.associateFiles
     !insertmacro wails.associateCustomProtocols
 
