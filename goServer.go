@@ -147,7 +147,7 @@ func GoServer(a *App) {
 		searchFolder := config.SearchFolder
 		configAvatarsPath := config.MoveFolder
 
-		AvatarsPath := filepath.Join(configAvatarsPath, "VAL_Avatars")
+		AvatarsPath := filepath.Join(configAvatarsPath, "Avatars")
 
 		if _, err := os.Stat(AvatarsPath); os.IsNotExist(err) {
 			if err := os.Mkdir(AvatarsPath, 0750); err != nil {
@@ -155,7 +155,7 @@ func GoServer(a *App) {
 			}
 		}
 
-		imagesPath := filepath.Join(configAvatarsPath, "VAL_Images")
+		imagesPath := filepath.Join(configAvatarsPath, "Images")
 		if _, err := os.Stat(imagesPath); os.IsNotExist(err) {
 			if err := os.Mkdir(imagesPath, 0750); err != nil {
 				return

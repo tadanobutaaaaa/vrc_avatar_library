@@ -102,10 +102,11 @@ function SetupProcess() {
                         </IconButton>
                     </Flex>
                     <Text fontWeight="semibold" mt="5px">
-                        商品の移動先のフォルダを選択してください
+                        商品があるドライブと同じドライブを選んでください。<br/>
+                        違うドライブを選ぶと、正しく移動できません。
                     </Text>
-                    <Text fontWeight="semibold" color="red.600">
-                        ※商品が存在するドライブと同一のドライブを選択してください
+                    <Text fontWeight="semibold" color="red.600" mt="4px">
+                        ※このシステムでは、ドライブをまたいでの移動ができません。
                     </Text>
                 </Box>
             </Box>
