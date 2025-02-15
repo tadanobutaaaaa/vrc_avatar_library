@@ -55,8 +55,6 @@ func sendWebsocket(status bool, complement int, processedCount int) {
 	}
 }
 
-//TODO: アップデートの実装をどうにかする
-
 func GoServer(a *App) {
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
@@ -65,11 +63,11 @@ func GoServer(a *App) {
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
-			// すべてのオリジンを許可
 			return true
 		},
 	}
 
+	//CORSの設定
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
 			"https://accounts.booth.pm",
@@ -92,6 +90,7 @@ func GoServer(a *App) {
 	count := 0
 	processedCount := 0
 
+	//処理をしているかの確認用 & 進捗状況を送信する
 	r.GET("/ws", func(c *gin.Context) {
 		ws, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
@@ -116,12 +115,14 @@ func GoServer(a *App) {
 		}
 	})
 
+	//chrome拡張機能からアプリが動いているか確認する用
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": true,
 		})
 	})
 
+	//chrome拡張機能からのリクエストを受け取る
 	r.POST("/send/fileImages", func(c *gin.Context) {
 		var jsonData Root
 
@@ -132,45 +133,31 @@ func GoServer(a *App) {
             return
         }
 		
-		file, err := os.Open(configJson)
-		if err != nil {
-			fmt.Println("設定ファイルが見つかりませんでした:", err)
-		}
-		defer file.Close()
+		avatarsPath, imagesPath ,configSearchPath := checkConfigAvatarsPath()
 
-		var config Config
-		decoder := json.NewDecoder(file)
-		if err := decoder.Decode(&config); err != nil {
-			fmt.Println("設定ファイルの読み込みに失敗しました:", err)
-		}
-
-		searchFolder := config.SearchFolder
-		configAvatarsPath := config.MoveFolder
-
-		AvatarsPath := filepath.Join(configAvatarsPath, "Avatars")
-
-		if _, err := os.Stat(AvatarsPath); os.IsNotExist(err) {
-			if err := os.Mkdir(AvatarsPath, 0750); err != nil {
+		//Avatarsフォルダが存在しない場合は作成する
+		if _, err := os.Stat(avatarsPath); os.IsNotExist(err) {
+			if err := os.Mkdir(avatarsPath, 0750); err != nil {
 				return
 			}
 		}
 
-		imagesPath := filepath.Join(configAvatarsPath, "Images")
+		//Imagesフォルダが存在しない場合は作成する
 		if _, err := os.Stat(imagesPath); os.IsNotExist(err) {
 			if err := os.Mkdir(imagesPath, 0750); err != nil {
 				return
 			}
 		}
 
-		if filepath.VolumeName(searchFolder) != filepath.VolumeName(configAvatarsPath) {
+		//検索フォルダと移動フォルダが異なる場合は処理を中断する
+		if filepath.VolumeName(configSearchPath) != filepath.VolumeName(avatarsPath) {
 			fmt.Println("ドライブが異なるため、処理を中断します。")
 			runtime.EventsEmit(a.ctx, "error", "Rename")
 			return 
 		}
 
-		entries, err := os.ReadDir(searchFolder)
+		entries, err := os.ReadDir(configSearchPath)
 
-		fmt.Println("数を検索しています...")
 		 // 条件に合うエントリの件数をカウント
 		for _, entry := range entries {
 			for key := range jsonData {
@@ -186,9 +173,8 @@ func GoServer(a *App) {
 
 		sendWebsocket(true, count, 0)
 	
-		//FIXME: サムネイル付与時間の修正(反映まで時間がかかる)
 
-		fmt.Println("サムネイル画像を作成しています...")
+		//サムネイル画像の付与
 		for _, entry := range entries {
 			for key := range jsonData {
 				for _, jsonEntry := range jsonData[key] {
@@ -196,7 +182,7 @@ func GoServer(a *App) {
 						if entry.IsDir() && strings.Contains(name, entry.Name()) {
 							fmt.Println("サムネイル画像を作成しています:", entry.Name())
 							//サムネイル画像が保存されているフォルダがあるか確認する
-							inAvatarsFolder := filepath.Join(AvatarsPath, booth.Id)
+							inAvatarsFolder := filepath.Join(avatarsPath, booth.Id)
 							if _, err := os.Stat(filepath.Join(inAvatarsFolder, entry.Name())); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
 								processedCount++
@@ -278,7 +264,7 @@ func GoServer(a *App) {
 								}
 							}
 
-							if err := os.Rename(filepath.Join(searchFolder, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
+							if err := os.Rename(filepath.Join(configSearchPath, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
 								fmt.Println("ファイルの移動に失敗しました:", err)
 								return
 							}

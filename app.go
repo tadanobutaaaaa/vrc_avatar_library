@@ -36,6 +36,27 @@ var (
 	AvatarsPath = filepath.Join(currentDirectory)
 )
 
+// config.jsonの値を取得する関数
+func checkConfigAvatarsPath() (string, string, string) {
+	file, err := os.Open(configJson)
+	if err != nil {
+		fmt.Println("設定ファイルが見つかりませんでした:", err)
+	}
+	defer file.Close()
+
+	var config Config
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&config); err != nil {
+		fmt.Println("設定ファイルの読み込みに失敗しました:", err)
+	}
+
+	avatarsPath := filepath.Join(config.MoveFolder, "Avatars")
+	imagesPath := filepath.Join(config.MoveFolder, "Images")
+	configSearchPath := config.SearchFolder
+
+	return avatarsPath, imagesPath ,configSearchPath
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
@@ -44,7 +65,7 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
-	// 少しだけ最前面に表示（例えば100ミリ秒後に解除）
+	// 少しだけ最前面に表示（100ミリ秒後に解除）
 	go func() {
 		time.Sleep(100 * time.Millisecond) // 100ミリ秒後
 		runtime.WindowSetAlwaysOnTop(a.ctx, false) // 最前面解除
@@ -174,12 +195,12 @@ func (a *App) GetMoveFolder() string {
 }
 
 func (a *App) OpenFolder() string {
-	info, err := os.Stat(AvatarsPath)
-	fmt.Println("AvatarsPath", AvatarsPath)
+	avatarsFolderPath, _, _ := checkConfigAvatarsPath()
+	info, err := os.Stat(avatarsFolderPath)
 	if os.IsNotExist(err) || err != nil || !info.IsDir() {
         return "Error"
     }
-	return AvatarsPath
+	return avatarsFolderPath
 }
 
 func (a *App) MakeConfig() {
