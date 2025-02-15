@@ -81,7 +81,7 @@ function SetupProcess() {
                 <Box background="#c0c0c0" w="85%" p="20px" borderRadius="md">
                     <Flex alignItems="center" gap="6px" mb="5px">
                         <Folder />
-                        <Text textStyle="2xl" fontWeight="bold">移動先のフォルダ</Text>
+                        <Text textStyle="2xl" fontWeight="bold">保存先のフォルダ</Text>
                     </Flex>
                     <Flex gap="4px" alignItems="center">
                         <Flex maxW="800px">
@@ -102,8 +102,9 @@ function SetupProcess() {
                         </IconButton>
                     </Flex>
                     <Text fontWeight="semibold" mt="5px">
-                        商品があるドライブと同じドライブを選んでください。<br/>
-                        違うドライブを選ぶと、正しく移動できません。
+                        「検索フォルダ」と同じドライブを選択してください。<br/>
+                        <Text as="span" color="red.600">O</Text> Cドライブ → Cドライブ, Dドライブ → Dドライブ <br />
+                        <Text as="span" color="red.600">X</Text> Cドライブ → Dドライブ
                     </Text>
                     <Text fontWeight="semibold" color="red.600" mt="4px">
                         ※このシステムでは、ドライブをまたいでの移動ができません。
