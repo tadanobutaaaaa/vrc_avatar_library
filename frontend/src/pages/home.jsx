@@ -53,14 +53,14 @@ function Home(){
                             <p>
                             🎉 新しいバージョン <strong>Ver.{latestVersion}</strong> が登場しました！<br />
                             リリースノートは<Link onClick={() => {BrowserOpenURL(latestVersionURL)}} variant="underline" colorPalette="blue" _hover={{ color: "teal" }} fontWeight="bold">こちら</Link>から確認できます。<br />
-                            今すぐインストールして最新の機能をお試しください！
+                            今すぐアップデートして最新の機能をお試しください！
                             </p>
                         </DialogBody>
                         <DialogFooter>
                             <DialogActionTrigger asChild>
                                 <Button variant="outline" size="sm" onClick={handleUpdateLater}>後で</Button>
                             </DialogActionTrigger>
-                            <Button onClick={handleUpdateNow} size="sm" >インストールする</Button>
+                            <Button onClick={handleUpdateNow} size="sm" >アップデートする</Button>
                         </DialogFooter>
                     </DialogContent>
                 </DialogRoot>
