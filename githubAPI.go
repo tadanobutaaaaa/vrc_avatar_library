@@ -45,7 +45,7 @@ func GithubAPI(a *App) {
 		}
 
 		for _, asset := range latestRelease.Assets {
-			if filepath.Ext(asset.Name) == ".exe" {
+			if filepath.Ext(asset.Name) == "VRC-Avatar-Library.exe" {
 				downloadURL = asset.URL
 				break
 			}
