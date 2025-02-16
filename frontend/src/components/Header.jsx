@@ -9,23 +9,23 @@ import Page from './colorModeButton';
 import React, { useEffect } from 'react';
 
 function Header ({ status = false }) {
-    useEffect(() => {
-        const handleError = () => {
-            toaster.create({
-                title: "ドライブを跨いだ処理が開始されたためエラーが発生しました",
-                description: "設定画面の「保存先のフォルダ」から設定を変更してください。",
-                duration: 10000,
-                type: "error",
-            });
-        };
+    const handleError = () => {
+        toaster.create({
+            title: "ドライブを跨いだ処理が開始されたためエラーが発生しました",
+            description: "設定画面の「保存先のフォルダ」から設定を変更してください。",
+            duration: 10000,
+            type: "error",
+        })
+    }
 
-        EventsOn("error", handleError);
+    useEffect(() => {
+        EventsOn("error", handleError)
 
         // コンポーネントがアンマウントされるときにイベントリスナーを解除
         return () => {
-            EventsOff("error", handleError);
-        };
-    }, []);
+            EventsOff("error", handleError)
+        }
+    }, [])
 
     const navigate = useNavigate()
     const checkAvatarsPath = () => {
