@@ -9,12 +9,13 @@ import (
 	"path/filepath"
 	"syscall"
 	"time"
+	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 const (
-	currentVersion = "1.1.0" // 現在のバージョン
+	currentVersion = "v1.1.0" // 現在のバージョン
 	repoOwner      = "tadanobutaaaaa" // リポジトリのオーナー
 	repoName       = "vrc_avatar_library" // リポジトリの名前
 )
@@ -36,8 +37,11 @@ func GithubAPI(a *App) {
 		return
 	}
 
-	if latestRelease.TagName != currentVersion {
-		fmt.Println("新しいバージョンを見つけました:", latestRelease.TagName)
+	latestVersion := strings.TrimPrefix(latestRelease.TagName, "v")
+	current := strings.TrimPrefix(currentVersion, "v")
+
+	if latestVersion != current {
+		fmt.Println("新しいバージョンを見つけました:", latestVersion)
 
 		if len(latestRelease.Assets) == 0 {
 			fmt.Println("アセットが存在しません。")
@@ -45,7 +49,7 @@ func GithubAPI(a *App) {
 		}
 
 		for _, asset := range latestRelease.Assets {
-			if filepath.Ext(asset.Name) == "VRC-Avatar-Library.exe" {
+			if asset.Name == "VRC-Avatar-Library.exe" {
 				downloadURL = asset.URL
 				break
 			}
@@ -57,7 +61,7 @@ func GithubAPI(a *App) {
 		}
 
 		data := map[string]interface{}{
-			"version": latestRelease.TagName,
+			"version": latestVersion,
 			"url":     latestRelease.Assets[0].URL,
 		}
 
@@ -103,7 +107,7 @@ func WriteDownloadURLToFile() error {
 	newJSON, err := json.MarshalIndent(configData, "", "  ")
 	if err != nil {
 		fmt.Println("JSONのエンコードに失敗しました:", err)
-		return nil
+		return err
 	}
 
 	fmt.Println("configData: ", configData)
