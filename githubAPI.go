@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	currentVersion = "v1.1.0" // 現在のバージョン
+	currentVersion = "v1.1.1" // 現在のバージョン
 	repoOwner      = "tadanobutaaaaa" // リポジトリのオーナー
 	repoName       = "vrc_avatar_library" // リポジトリの名前
 )
@@ -26,6 +26,7 @@ type Release struct {
 		Name string `json:"name"`
 		URL  string `json:"browser_download_url"`
 	} `json:"assets"`
+	HtmlURL string `json:"html_url"`
 }
 
 var downloadURL string
@@ -62,7 +63,7 @@ func GithubAPI(a *App) {
 
 		data := map[string]interface{}{
 			"version": latestVersion,
-			"url":     latestRelease.Assets[0].URL,
+			"url":     latestRelease.HtmlURL,
 		}
 
 		time.Sleep(1 * time.Second)
