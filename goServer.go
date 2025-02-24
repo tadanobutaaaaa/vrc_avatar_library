@@ -288,11 +288,21 @@ func GoServer(a *App) {
 								continue
 							}
 
-							if _, err := os.Stat(inAvatarsShopFolder); os.IsNotExist(err) {
-								os.MkdirAll(inAvatarsShopFolder, 0750)
-
+							if _, err := os.Stat(ShopFolder); os.IsNotExist(err) {
+								if err := os.MkdirAll(ShopFolder, 0750); err != nil {
+									log.Println("ディレクトリの作成に失敗しました:", err)
+									return
+								}
 								//サムネイル画像を作成する
 								creatIcoThumbnail(booth.ShopSrc, booth.ShopId, imagesShopPath, ShopFolder)
+							}
+
+							if _, err := os.Stat(inAvatarsShopFolder); os.IsNotExist(err) {
+								if err := os.Mkdir(inAvatarsShopFolder, 0750); err != nil {
+									log.Println("ディレクトリの作成に失敗しました2:", err)
+									return
+								}
+								//サムネイル画像を作成する
 								creatIcoThumbnail(booth.ItemSrc, booth.Id, imagesAvatarsPath, inAvatarsShopFolder)
 							}
 
