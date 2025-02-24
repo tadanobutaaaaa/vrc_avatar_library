@@ -58,6 +58,7 @@ func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) 
 	io.Copy(out, resp.Body)
 
 	icoThumbnail := filepath.Join(icoPath, name + ".ico")
+	icoName := name + ".ico"
 
 	//icoファイルを作成する
 	file, err := os.Open(jpgThumbnail)
@@ -83,15 +84,15 @@ func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) 
 	if err != nil {
 		return
 	}
-	writeDesktopIni(icoPath, icoThumbnail)
+	writeDesktopIni(icoPath, icoName, icoThumbnail)
 }
 
-func writeDesktopIni(desktopIniFolderPath string, icoPath string) {
+func writeDesktopIni(desktopIniFolderPath string, icoName string, icoPath string) {
 	//iniファイルに書き込む
 	desktopIniPath := filepath.Join(desktopIniFolderPath, "desktop.ini")
 
 	cfg := ini.Empty()
-	cfg.Section(".ShellClassInfo").Key("IconResource").SetValue(icoPath + ",0")
+	cfg.Section(".ShellClassInfo").Key("IconResource").SetValue(icoName + ",0")
 	if err := cfg.SaveTo(desktopIniPath); err != nil {
 		return
 	}
@@ -291,7 +292,7 @@ func GoServer(a *App) {
 								os.MkdirAll(inAvatarsShopFolder, 0750)
 
 								//サムネイル画像を作成する
-								creatIcoThumbnail(booth.ShopSrc, booth.ShopName, imagesShopPath, ShopFolder)
+								creatIcoThumbnail(booth.ShopSrc, booth.ShopId, imagesShopPath, ShopFolder)
 								creatIcoThumbnail(booth.ItemSrc, booth.Id, imagesAvatarsPath, inAvatarsShopFolder)
 							}
 
