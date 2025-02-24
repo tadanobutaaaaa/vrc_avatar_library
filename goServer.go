@@ -29,13 +29,91 @@ type Root map[string][]map[string]Booth
 
 type Booth struct {
 	Id   string `json:"id"`
-	Src  string `json:"src"`
+	ItemSrc string `json:"itemSrc"`
+	ShopId string `json:"shopId"`
+	ShopName string `json:"shopName"`
+	ShopSrc string `json:"shopSrc"`
 }
 
 var (
 	mutex   sync.Mutex
 	clients = make(map[*websocket.Conn]bool)
 )
+
+func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	//サムネイル画像を保存する
+	jpgThumbnail := filepath.Join(jpgPath, name + ".jpg")
+
+	out, err := os.Create(jpgThumbnail)
+	if err != nil {
+		return
+	}
+	defer out.Close()
+	io.Copy(out, resp.Body)
+
+	icoThumbnail := filepath.Join(icoPath, name + ".ico")
+
+	//icoファイルを作成する
+	file, err := os.Open(jpgThumbnail)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return
+	}
+
+	resizedImg := image.NewRGBA(image.Rect(0, 0, 256, 256))
+	draw.NearestNeighbor.Scale(resizedImg, resizedImg.Bounds(), img, img.Bounds(), draw.Over, nil)
+
+	icoFile, err := os.Create(icoThumbnail)
+	if err != nil {
+		return
+	}
+
+	err = ico.Encode(icoFile, resizedImg)
+	if err != nil {
+		return
+	}
+	writeDesktopIni(icoPath, icoThumbnail)
+}
+
+func writeDesktopIni(desktopIniFolderPath string, icoPath string) {
+	//iniファイルに書き込む
+	desktopIniPath := filepath.Join(desktopIniFolderPath, "desktop.ini")
+
+	cfg := ini.Empty()
+	cfg.Section(".ShellClassInfo").Key("IconResource").SetValue(icoPath + ",0")
+	if err := cfg.SaveTo(desktopIniPath); err != nil {
+		return
+	}
+
+	cmd := exec.Command("attrib", "+h", desktopIniPath)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	if err := cmd.Run(); err != nil {
+		return
+	}
+
+	cmd = exec.Command("attrib", "+s", desktopIniFolderPath)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	if err := cmd.Run(); err != nil {
+		return
+	}
+
+	cmd = exec.Command("attrib", "+h", icoPath)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	if err := cmd.Run(); err != nil {
+		return
+	}
+}
 
 func sendWebsocket(status bool, complement int, processedCount int) {
 	isProcessing := map[string]interface{}{"status": status, "count": complement, "processedCount": processedCount}
@@ -132,6 +210,16 @@ func GoServer(a *App) {
             })
             return
         }
+
+		// 受け取ったJSONデータを出力
+		jsonBytes, err := json.MarshalIndent(jsonData, "", "  ")
+		if err != nil {
+			log.Println("JSONのエンコードに失敗しました:", err)
+		} else {
+			log.Println("受け取ったJSONデータ:", string(jsonBytes))
+		}
+
+		fmt.Println("送信されたデータ:", jsonData)
 		
 		avatarsPath, imagesPath ,configSearchPath := checkConfigAvatarsPath()
 
@@ -142,9 +230,20 @@ func GoServer(a *App) {
 			}
 		}
 
+		imagesAvatarsPath := filepath.Join(imagesPath, "Avatars")
+		imagesShopPath := filepath.Join(imagesPath, "Shop")
+
 		//Imagesフォルダが存在しない場合は作成する
 		if _, err := os.Stat(imagesPath); os.IsNotExist(err) {
 			if err := os.Mkdir(imagesPath, 0750); err != nil {
+				return
+			}
+		}
+		if _, err := os.Stat(imagesAvatarsPath); os.IsNotExist(err) {
+			if err := os.Mkdir(imagesAvatarsPath, 0750); err != nil {
+				return
+			}
+			if err := os.Mkdir(imagesShopPath, 0750); err != nil {
 				return
 			}
 		}
@@ -170,9 +269,7 @@ func GoServer(a *App) {
 				}
 			}
 		}
-
 		sendWebsocket(true, count, 0)
-	
 
 		//サムネイル画像の付与
 		for _, entry := range entries {
@@ -182,89 +279,23 @@ func GoServer(a *App) {
 						if entry.IsDir() && strings.Contains(name, entry.Name()) {
 							fmt.Println("サムネイル画像を作成しています:", entry.Name())
 							//サムネイル画像が保存されているフォルダがあるか確認する
-							inAvatarsFolder := filepath.Join(avatarsPath, booth.Id)
-							if _, err := os.Stat(filepath.Join(inAvatarsFolder, entry.Name())); err == nil {
+							inAvatarsShopFolder := filepath.Join(avatarsPath, booth.ShopName ,booth.Id)
+							ShopFolder := filepath.Join(avatarsPath, booth.ShopName)
+							if _, err := os.Stat(filepath.Join(inAvatarsShopFolder, entry.Name())); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
 								processedCount++
 								continue
 							}
 
-							if _, err := os.Stat(inAvatarsFolder); os.IsNotExist(err) {
-								os.Mkdir(inAvatarsFolder, 0750)
+							if _, err := os.Stat(inAvatarsShopFolder); os.IsNotExist(err) {
+								os.MkdirAll(inAvatarsShopFolder, 0750)
 
-								url := booth.Src
-								resp, err := http.Get(url)
-								if err != nil {
-									return
-								}
-								defer resp.Body.Close()
-
-								//サムネイル画像を保存する
-								jpgThumbnail := filepath.Join(imagesPath, booth.Id + ".jpg")
-
-								out, err := os.Create(jpgThumbnail)
-								if err != nil {
-									return
-								}
-								defer out.Close()
-								io.Copy(out, resp.Body)
-
-								icoThumbnail := filepath.Join(inAvatarsFolder, booth.Id + ".ico")
-
-								//icoファイルを作成する
-								file, err := os.Open(jpgThumbnail)
-								if err != nil {
-									return
-								}
-								defer file.Close()
-
-								img, _, err := image.Decode(file)
-								if err != nil {
-									return
-								}
-
-								resizedImg := image.NewRGBA(image.Rect(0, 0, 256, 256))
-								draw.NearestNeighbor.Scale(resizedImg, resizedImg.Bounds(), img, img.Bounds(), draw.Over, nil)
-
-								icoFile, err := os.Create(icoThumbnail)
-								if err != nil {
-									return
-								}
-
-								err = ico.Encode(icoFile, resizedImg)
-								if err != nil {
-									return
-								}
-
-								//iniファイルに書き込む
-								desktopIniPath := filepath.Join(inAvatarsFolder, "desktop.ini")
-
-								cfg := ini.Empty()
-								cfg.Section(".ShellClassInfo").Key("IconResource").SetValue(fmt.Sprintf("\"%s.ico\",0", booth.Id))
-								if err := cfg.SaveTo(desktopIniPath); err != nil {
-									return
-								}
-
-								cmd := exec.Command("attrib", "+h", desktopIniPath)
-								cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-								if err := cmd.Run(); err != nil {
-									return
-								}
-
-								cmd = exec.Command("attrib", "+s", inAvatarsFolder)
-								cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-								if err := cmd.Run(); err != nil {
-									return
-								}
-
-								cmd = exec.Command("attrib", "+h", icoThumbnail)
-								cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-								if err := cmd.Run(); err != nil {
-									return
-								}
+								//サムネイル画像を作成する
+								creatIcoThumbnail(booth.ShopSrc, booth.ShopName, imagesShopPath, ShopFolder)
+								creatIcoThumbnail(booth.ItemSrc, booth.Id, imagesAvatarsPath, inAvatarsShopFolder)
 							}
 
-							if err := os.Rename(filepath.Join(configSearchPath, entry.Name()), filepath.Join(inAvatarsFolder, entry.Name())); err != nil {
+							if err := os.Rename(filepath.Join(configSearchPath, entry.Name()), filepath.Join(inAvatarsShopFolder, entry.Name())); err != nil {
 								fmt.Println("ファイルの移動に失敗しました:", err)
 								return
 							}
