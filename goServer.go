@@ -41,50 +41,52 @@ var (
 )
 
 func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return
+	if (strings.HasPrefix(url, "https://booth.pximg.net//")) {
+		resp, err := http.Get(url)
+		if err != nil {
+			return
+		}
+		defer resp.Body.Close()
+
+		//サムネイル画像を保存する
+		jpgThumbnail := filepath.Join(jpgPath, name + ".jpg")
+
+		out, err := os.Create(jpgThumbnail)
+		if err != nil {
+			return
+		}
+		defer out.Close()
+		io.Copy(out, resp.Body)
+
+		icoThumbnail := filepath.Join(icoPath, name + ".ico")
+		icoName := name + ".ico"
+
+		//icoファイルを作成する
+		file, err := os.Open(jpgThumbnail)
+		if err != nil {
+			return
+		}
+		defer file.Close()
+
+		img, _, err := image.Decode(file)
+		if err != nil {
+			return
+		}
+
+		resizedImg := image.NewRGBA(image.Rect(0, 0, 256, 256))
+		draw.NearestNeighbor.Scale(resizedImg, resizedImg.Bounds(), img, img.Bounds(), draw.Over, nil)
+
+		icoFile, err := os.Create(icoThumbnail)
+		if err != nil {
+			return
+		}
+
+		err = ico.Encode(icoFile, resizedImg)
+		if err != nil {
+			return
+		}
+		writeDesktopIni(icoPath, icoName, icoThumbnail)
 	}
-	defer resp.Body.Close()
-
-	//サムネイル画像を保存する
-	jpgThumbnail := filepath.Join(jpgPath, name + ".jpg")
-
-	out, err := os.Create(jpgThumbnail)
-	if err != nil {
-		return
-	}
-	defer out.Close()
-	io.Copy(out, resp.Body)
-
-	icoThumbnail := filepath.Join(icoPath, name + ".ico")
-	icoName := name + ".ico"
-
-	//icoファイルを作成する
-	file, err := os.Open(jpgThumbnail)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return
-	}
-
-	resizedImg := image.NewRGBA(image.Rect(0, 0, 256, 256))
-	draw.NearestNeighbor.Scale(resizedImg, resizedImg.Bounds(), img, img.Bounds(), draw.Over, nil)
-
-	icoFile, err := os.Create(icoThumbnail)
-	if err != nil {
-		return
-	}
-
-	err = ico.Encode(icoFile, resizedImg)
-	if err != nil {
-		return
-	}
-	writeDesktopIni(icoPath, icoName, icoThumbnail)
 }
 
 func writeDesktopIni(desktopIniFolderPath string, icoName string, icoPath string) {
@@ -197,7 +199,7 @@ func GoServer(a *App) {
 	//chrome拡張機能からアプリが動いているか確認する用
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"status": true,
+			"version": currentVersion,
 		})
 	})
 
