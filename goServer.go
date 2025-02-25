@@ -41,7 +41,7 @@ var (
 )
 
 func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) {
-	if (strings.HasPrefix(url, "https://booth.pximg.net//")) {
+	if (strings.HasPrefix(url, "https://booth.pximg.net/")) {
 		resp, err := http.Get(url)
 		if err != nil {
 			return
