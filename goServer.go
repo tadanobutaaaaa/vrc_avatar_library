@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"syscall"
@@ -20,9 +21,9 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/image/draw"
 	"gopkg.in/ini.v1"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type Root map[string][]map[string]Booth
@@ -39,6 +40,20 @@ var (
 	mutex   sync.Mutex
 	clients = make(map[*websocket.Conn]bool)
 )
+
+func exchangeString(startLocation string, shopFolderPath string ,folderName string) {
+	//英数字、記号、日本語のみを許可する(それ以外の文字を_に置き換え 例: 2021/01/01 -> 2021_01_01)
+	re := regexp.MustCompile(`[^a-zA-Z0-9!@#\$%\^&\(\)_\+\-\=\[\]\{\};',.\~\s\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{4E00}-\x{9FFF}]*$`)
+	fileName := re.ReplaceAllString(folderName, "_")
+	// _が連続している場合は1つにまとめる
+	fileName = regexp.MustCompile(`_+`).ReplaceAllString(fileName, "_")
+	// 先頭と末尾の_を削除
+	fileName = regexp.MustCompile(`^_+|_+$`).ReplaceAllString(fileName, "")
+	//ファイルの移動
+	if err := os.Rename(startLocation, filepath.Join(shopFolderPath, fileName)); err != nil {
+		fmt.Println("ファイルの移動に失敗しました:", err)
+	}
+}
 
 func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) {
 	if (strings.HasPrefix(url, "https://booth.pximg.net/")) {
@@ -282,8 +297,8 @@ func GoServer(a *App) {
 						if entry.IsDir() && strings.Contains(name, entry.Name()) {
 							fmt.Println("サムネイル画像を作成しています:", entry.Name())
 							//サムネイル画像が保存されているフォルダがあるか確認する
-							inAvatarsShopFolder := filepath.Join(avatarsPath, booth.ShopName ,booth.Id)
-							ShopFolder := filepath.Join(avatarsPath, booth.ShopName)
+							inAvatarsShopFolder := filepath.Join(avatarsPath, booth.ShopId ,booth.Id)
+							ShopFolder := filepath.Join(avatarsPath, booth.ShopId)
 							if _, err := os.Stat(filepath.Join(inAvatarsShopFolder, entry.Name())); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
 								processedCount++
@@ -308,9 +323,14 @@ func GoServer(a *App) {
 								creatIcoThumbnail(booth.ItemSrc, booth.Id, imagesAvatarsPath, inAvatarsShopFolder)
 							}
 
-							if err := os.Rename(filepath.Join(configSearchPath, entry.Name()), filepath.Join(inAvatarsShopFolder, entry.Name())); err != nil {
+							//ファイルの移動元
+							startLocation := filepath.Join(configSearchPath, entry.Name())
+							//ファイルの移動先
+							endLocation := filepath.Join(inAvatarsShopFolder, entry.Name())
+
+							if err := os.Rename(startLocation, filepath.Join(endLocation)); err != nil {
 								fmt.Println("ファイルの移動に失敗しました:", err)
-								return
+								exchangeString(startLocation, inAvatarsShopFolder, entry.Name())
 							}
 
 							//サーバーへの負荷対策
