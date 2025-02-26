@@ -183,9 +183,6 @@ func GoServer(a *App) {
 		},
 	}))
 
-	count := 0
-	processedCount := 0
-
 	//処理をしているかの確認用 & 進捗状況を送信する
 	r.GET("/ws", func(c *gin.Context) {
 		ws, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
@@ -221,6 +218,8 @@ func GoServer(a *App) {
 	//chrome拡張機能からのリクエストを受け取る
 	r.POST("/send/fileImages", func(c *gin.Context) {
 		var jsonData Root
+		count := 0
+		processedCount := 0
 
         if err := c.ShouldBindJSON(&jsonData); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{
@@ -312,6 +311,7 @@ func GoServer(a *App) {
 								}
 								//サムネイル画像を作成する
 								creatIcoThumbnail(booth.ShopSrc, booth.ShopId, imagesShopPath, ShopFolder)
+								time.Sleep(1 * time.Second)
 							}
 
 							if _, err := os.Stat(inAvatarsShopFolder); os.IsNotExist(err) {
@@ -336,7 +336,6 @@ func GoServer(a *App) {
 							//サーバーへの負荷対策
 							processedCount++
 							sendWebsocket(true, count, processedCount)
-
 							time.Sleep(1 * time.Second)
 						}
 					}
@@ -346,9 +345,6 @@ func GoServer(a *App) {
 
 		time.Sleep(1 * time.Second)
 		sendWebsocket(false, count, count)
-		
-		count = 0
-		processedCount = 0
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
