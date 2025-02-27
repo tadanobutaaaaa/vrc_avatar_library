@@ -41,7 +41,7 @@ var (
 	clients = make(map[*websocket.Conn]bool)
 )
 
-func exchangeString(startLocation string, shopFolderPath string ,folderName string) {
+func exchangeString(folderName string) string {
 	//英数字、記号、日本語のみを許可する(それ以外の文字を_に置き換え 例: 2021/01/01 -> 2021_01_01)
 	re := regexp.MustCompile(`[^a-zA-Z0-9!@#\$%\^&\(\)_\+\-\=\[\]\{\};',.\~\s\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{4E00}-\x{9FFF}]*$`)
 	fileName := re.ReplaceAllString(folderName, "_")
@@ -49,10 +49,7 @@ func exchangeString(startLocation string, shopFolderPath string ,folderName stri
 	fileName = regexp.MustCompile(`_+`).ReplaceAllString(fileName, "_")
 	// 先頭と末尾の_を削除
 	fileName = regexp.MustCompile(`^_+|_+$`).ReplaceAllString(fileName, "")
-	//ファイルの移動
-	if err := os.Rename(startLocation, filepath.Join(shopFolderPath, fileName)); err != nil {
-		fmt.Println("ファイルの移動に失敗しました:", err)
-	}
+	return fileName 
 }
 
 func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) {
@@ -298,7 +295,9 @@ func GoServer(a *App) {
 							//サムネイル画像が保存されているフォルダがあるか確認する
 							inAvatarsShopFolder := filepath.Join(avatarsPath, booth.ShopId ,booth.Id)
 							ShopFolder := filepath.Join(avatarsPath, booth.ShopId)
-							if _, err := os.Stat(filepath.Join(inAvatarsShopFolder, entry.Name())); err == nil {
+							//フォルダ名に使用できない文字を置き換える
+							cleanedString := exchangeString(entry.Name())
+							if _, err := os.Stat(filepath.Join(inAvatarsShopFolder, cleanedString)); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
 								processedCount++
 								continue
@@ -326,11 +325,10 @@ func GoServer(a *App) {
 							//ファイルの移動元
 							startLocation := filepath.Join(configSearchPath, entry.Name())
 							//ファイルの移動先
-							endLocation := filepath.Join(inAvatarsShopFolder, entry.Name())
+							endLocation := filepath.Join(inAvatarsShopFolder, cleanedString)
 
-							if err := os.Rename(startLocation, filepath.Join(endLocation)); err != nil {
+							if err := os.Rename(startLocation, endLocation); err != nil {
 								fmt.Println("ファイルの移動に失敗しました:", err)
-								exchangeString(startLocation, inAvatarsShopFolder, entry.Name())
 							}
 
 							//サーバーへの負荷対策
