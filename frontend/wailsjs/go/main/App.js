@@ -18,12 +18,8 @@ export function OpenFolder() {
   return window['go']['main']['App']['OpenFolder']();
 }
 
-export function SelectFolder() {
-  return window['go']['main']['App']['SelectFolder']();
-}
-
-export function SelectMoveFolder() {
-  return window['go']['main']['App']['SelectMoveFolder']();
+export function SelectFolder(arg1) {
+  return window['go']['main']['App']['SelectFolder'](arg1);
 }
 
 export function WriteURLAndUpdate() {

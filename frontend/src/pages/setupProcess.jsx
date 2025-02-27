@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Header from '../components/Header';
-import { SelectFolder, GetSearchFolder, SelectMoveFolder, GetMoveFolder } from '../../wailsjs/go/main/App';
-import { FolderSearch, Folder } from 'lucide-react';
+import { SelectFolder, GetSearchFolder, GetMoveFolder } from '../../wailsjs/go/main/App';
+import { FolderSearch, Folder, ShoppingBag, Search } from 'lucide-react';
 import { IconButton, Flex, Text, Box } from "@chakra-ui/react"; 
-import { Search } from 'lucide-react';
 import { useColorModeValue } from "@/components/ui/color-mode"
+import { Checkbox } from "@/components/ui/checkbox"
 import goWebSocket from "../hooks/goWebSocket";
 
 
@@ -32,7 +32,7 @@ function SetupProcess() {
     }, [])
 
     const SelectFolderProcess = () => {
-        SelectFolder().then((res) => {
+        SelectFolder("searchFolder").then((res) => {
             if (res !== "Error") {
                 setSearchFolder(res)
             }
@@ -40,7 +40,7 @@ function SetupProcess() {
     }
 
     const SelectMoveFolderProcess = () => {
-        SelectMoveFolder().then((res) => {
+        SelectFolder("moveFolder").then((res) => {
             if (res !== "Error") {
                 setMoveFolder(res)
             }
@@ -111,8 +111,25 @@ function SetupProcess() {
                     </Text>
                 </Box>
             </Box>
+            <Box ml="50px" mt="30px">
+                <Box background="#c0c0c0" w="85%" p="20px" borderRadius="md">
+                    <Flex alignItems="center" gap="6px" mb="5px">
+                        <ShoppingBag />
+                        <Text textStyle="2xl" fontWeight="bold">ショップごとにフォルダを分ける機能</Text>
+                    </Flex>
+                    <Flex ml="10px" mt="10px" gap="5px" mb="10px">
+                        <Checkbox size="md" ></Checkbox>
+                        <Text fontWeight="semibold">機能をONにする</Text>
+                    </Flex>
+                    <Text fontWeight="semibold" mt="5px">
+                        この機能をONにすると、ショップのフォルダの中に、各商品のフォルダが自動的に作成されます。<br/>
+                    </Text>
+                    <Text fontWeight="semibold" color="red.600">
+                        ※フォルダが多くなるので、注意してください。
+                    </Text>
+            </Box>
+            </Box>
         </>
     )
 }
-
 export default SetupProcess

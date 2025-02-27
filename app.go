@@ -76,7 +76,7 @@ func (a *App) startup(ctx context.Context) {
 	go GoServer(a)
 }
 
-func (a *App) SelectFolder() string {
+func (a *App) SelectFolder(keyName string) string {
 	result, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "フォルダを選択",
 	})
@@ -99,7 +99,7 @@ func (a *App) SelectFolder() string {
 		fmt.Println("JSONのデコードに失敗しました:", err)
 	}
 
-	configData["searchFolder"] = result
+	configData[keyName] = result
 
 	// JSONをエンコード
 	newJSON, err := json.MarshalIndent(configData, "", "  ")
@@ -117,50 +117,6 @@ func (a *App) SelectFolder() string {
 	fmt.Println("検索フォルダをファイルに書き込みました。")
 	return result
 }
-
-//TODO:ここに移動先フォルダを選べる処理の追加
-func (a *App) SelectMoveFolder() string {
-	result, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "フォルダを選択",
-	})
-	if err != nil {
-		fmt.Println("フォルダを選択する際にエラーが発生しました: ",err)
-	}	
-
-	if result == "" {
-		return "Error"
-	}
-
-	file, err := os.ReadFile(configJson)
-	if err != nil {
-		fmt.Println("ファイルを開けませんでした:", err)
-	}
-
-	var configData map[string]interface{}
-	err = json.Unmarshal(file, &configData)
-	if err != nil {
-		fmt.Println("JSONのデコードに失敗しました:", err)
-	}
-
-	configData["moveFolder"] = result
-
-	// JSONをエンコード
-	newJSON, err := json.MarshalIndent(configData, "", "  ")
-	if err != nil {
-		fmt.Println("JSONのエンコードに失敗しました:", err)
-	}
-
-	fmt.Println("configData: ", configData)
-
-	err = os.WriteFile(configJson, newJSON, 0644)
-	if err != nil {
-		fmt.Println("ファイルに書き込めませんでした:", err)
-	}
-
-	fmt.Println("移動先のフォルダをファイルに書き込みました。")
-	return result
-}
-
 
 func (a *App) GetSearchFolder() string {
 	file, err := os.Open(configJson)

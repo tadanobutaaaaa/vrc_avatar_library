@@ -9,8 +9,6 @@ export function MakeConfig():Promise<void>;
 
 export function OpenFolder():Promise<string>;
 
-export function SelectFolder():Promise<string>;
-
-export function SelectMoveFolder():Promise<string>;
+export function SelectFolder(arg1:string):Promise<string>;
 
 export function WriteURLAndUpdate():Promise<void>;
