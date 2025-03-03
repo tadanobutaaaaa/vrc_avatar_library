@@ -138,7 +138,7 @@ function SetupProcess() {
                         この機能をONにすると、ショップのフォルダの中に、各商品のフォルダが自動的に作成されます。<br/>
                     </Text>
                     <Text fontWeight="semibold" color="red.600">
-                        ※フォルダが多くなるので、注意してください。
+                        ※フォルダが多くなり、処理時間が増えますので注意してください。
                     </Text>
             </Box>
             </Box>
