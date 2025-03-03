@@ -22,6 +22,7 @@ type ConfigMoveFolder struct {
 type Config struct {
 	SearchFolder string `json:"searchFolder"`
 	MoveFolder   string `json:"moveFolder"`
+	IsShopFolder bool   `json:"isShopFolder"`
 }
 
 // App struct
@@ -76,18 +77,7 @@ func (a *App) startup(ctx context.Context) {
 	go GoServer(a)
 }
 
-func (a *App) SelectFolder(keyName string) string {
-	result, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "フォルダを選択",
-	})
-	if err != nil {
-		fmt.Println("フォルダを選択する際にエラーが発生しました: ", err)
-	}
-
-	if result == "" {
-		return "Error"
-	}
-
+func (a* App) WriteJsonFile(keyName string, valueName interface{}) interface{} {
 	file, err := os.ReadFile(configJson)
 	if err != nil {
 		fmt.Println("ファイルを開けませんでした:", err)
@@ -99,7 +89,7 @@ func (a *App) SelectFolder(keyName string) string {
 		fmt.Println("JSONのデコードに失敗しました:", err)
 	}
 
-	configData[keyName] = result
+	configData[keyName] = valueName
 
 	// JSONをエンコード
 	newJSON, err := json.MarshalIndent(configData, "", "  ")
@@ -115,39 +105,49 @@ func (a *App) SelectFolder(keyName string) string {
 	}
 
 	fmt.Println("検索フォルダをファイルに書き込みました。")
-	return result
+	return valueName
 }
 
-func (a *App) GetSearchFolder() string {
-	file, err := os.Open(configJson)
+func (a *App) SelectFolder(keyName string) interface{} {
+	result, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "フォルダを選択",
+	})
 	if err != nil {
-		fmt.Println("設定ファイルが見つかりませんでした:", err)
-	}
-	defer file.Close()
-
-	var config ConfigSearchFolder
-	decoder := json.NewDecoder(file)
-	if err := decoder.Decode(&config); err != nil {
-		fmt.Println("設定ファイルの読み込みに失敗しました:", err)
+		fmt.Println("フォルダを選択する際にエラーが発生しました: ", err)
 	}
 
-	return config.SearchFolder
+	if result == "" {
+		return "Error"
+	}
+
+	return a.WriteJsonFile(keyName, result)
 }
 
-func (a *App) GetMoveFolder() string {
-	file, err := os.Open(configJson)
-	if err != nil {
-		fmt.Println("設定ファイルが見つかりませんでした:", err)
-	}
-	defer file.Close()
+func (a *App) GetFolder(keyName string) string {
+    file, err := os.Open(configJson)
+    if err != nil {
+        fmt.Println("設定ファイルが見つかりませんでした:", err)
+        return ""
+    }
+    defer file.Close()
 
-	var config ConfigMoveFolder
-	decoder := json.NewDecoder(file)
-	if err := decoder.Decode(&config); err != nil {
-		fmt.Println("設定ファイルの読み込みに失敗しました:", err)
-	}
+    var config Config
+    decoder := json.NewDecoder(file)
+    if err := decoder.Decode(&config); err != nil {
+        fmt.Println("設定ファイルの読み込みに失敗しました:", err)
+        return ""
+    }
 
-	return config.MoveFolder
+    switch keyName {
+    case "searchFolder":
+        return config.SearchFolder
+    case "moveFolder":
+        return config.MoveFolder
+	case "isShopFolder":
+		return fmt.Sprintf("%t", config.IsShopFolder)
+    default:
+        return ""
+    }
 }
 
 func (a *App) OpenFolder() string {
@@ -171,6 +171,7 @@ func (a *App) MakeConfig() {
 		initialConfig := Config{
 			SearchFolder: DownloadPath,
 			MoveFolder:   AvatarsPath,
+			IsShopFolder: false,
 		}
 
 		file, err := os.Create(configJson)
@@ -203,6 +204,9 @@ func (a *App) MakeConfig() {
         if _, ok := configData["moveFolder"]; !ok {
             configData["moveFolder"] = AvatarsPath
         }
+		if _, ok := configData["isShopFolder"]; !ok {
+			configData["isShopFolder"] = false
+		}
 
         // JSONをエンコード
         newJSON, err := json.MarshalIndent(configData, "", "  ")

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from '../components/Header';
-import { SelectFolder, GetSearchFolder, GetMoveFolder } from '../../wailsjs/go/main/App';
+import { SelectFolder, GetFolder, WriteJsonFile } from '../../wailsjs/go/main/App';
 import { FolderSearch, Folder, ShoppingBag, Search } from 'lucide-react';
 import { IconButton, Flex, Text, Box } from "@chakra-ui/react"; 
 import { useColorModeValue } from "@/components/ui/color-mode"
@@ -13,22 +13,29 @@ function SetupProcess() {
 
     const [searchFolder, setSearchFolder] = useState("")
     const [moveFolder, setMoveFolder] = useState("")
+    const [isChecked, setIsChecked] = useState(false)
 
     const bgColor = useColorModeValue("gray.100", "gray.400")
 
     useEffect(() => {
-        const fetchSearchFolder = async () => {
-            await GetSearchFolder().then((res) => {
+        const writeJsonSearchFolder = async () => {
+            await GetFolder("searchFolder").then((res) => {
                 setSearchFolder(res)
             })
         }
-        const fetchMoveFolder = async () => {
-            await GetMoveFolder().then((res) => {
+        const writeJsonMoveFolder = async () => {
+            await GetFolder("moveFolder").then((res) => {
                 setMoveFolder(res)
             })
         }
-        fetchSearchFolder()
-        fetchMoveFolder()
+        const writeJsonisShopFolder = async () => {
+            await GetFolder("isShopFolder").then((res) => {
+                setIsChecked(JSON.parse(res))
+            })
+        }
+        writeJsonMoveFolder()
+        writeJsonSearchFolder()
+        writeJsonisShopFolder()
     }, [])
 
     const SelectFolderProcess = () => {
@@ -45,6 +52,11 @@ function SetupProcess() {
                 setMoveFolder(res)
             }
         })
+    }
+
+    const handleCheckedChange = (checked) => {
+        WriteJsonFile("isShopFolder", checked)
+        setIsChecked(checked)
     }
 
     return (
@@ -118,8 +130,9 @@ function SetupProcess() {
                         <Text textStyle="2xl" fontWeight="bold">ショップごとにフォルダを分ける機能</Text>
                     </Flex>
                     <Flex ml="10px" mt="10px" gap="5px" mb="10px">
-                        <Checkbox size="md" ></Checkbox>
-                        <Text fontWeight="semibold">機能をONにする</Text>
+                        <Checkbox size="md" checked={isChecked} onCheckedChange={({checked}) => handleCheckedChange(checked)}>
+                            <Text fontWeight="semibold">機能をONにする</Text>
+                        </Checkbox>
                     </Flex>
                     <Text fontWeight="semibold" mt="5px">
                         この機能をONにすると、ショップのフォルダの中に、各商品のフォルダが自動的に作成されます。<br/>

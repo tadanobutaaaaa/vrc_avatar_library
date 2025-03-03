@@ -8,8 +8,6 @@ import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import goWebSocket from '../hooks/goWebSocket';
 import { useNavigate } from "react-router-dom";
 
-//TODO: 使い方4への案内を追加
-
 function Result(){
     const navigate = useNavigate()
     goWebSocket("/processing")
