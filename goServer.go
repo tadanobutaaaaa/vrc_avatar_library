@@ -218,6 +218,7 @@ func GoServer(a *App) {
 		var jsonData Root
 		count := 0
 		processedCount := 0
+		errorFolders := []string{}
 
         if err := c.ShouldBindJSON(&jsonData); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{
@@ -327,7 +328,8 @@ func GoServer(a *App) {
 								if _, err := os.Stat(ShopFolder); os.IsNotExist(err) {
 									if err := os.Mkdir(ShopFolder, 0750); err != nil {
 										log.Println("ディレクトリの作成に失敗しました:", err)
-										return
+										errorFolders = append(errorFolders, entry.Name())
+										continue
 									}
 									//サムネイル画像を作成する
 									creatIcoThumbnail(booth.ShopSrc, booth.ShopId, imagesShopPath, ShopFolder)
@@ -338,7 +340,8 @@ func GoServer(a *App) {
 							if _, err := os.Stat(inAvatarsFolder); os.IsNotExist(err) {
 								if err := os.Mkdir(inAvatarsFolder, 0750); err != nil {
 									log.Println("ディレクトリの作成に失敗しました2:", err)
-									return
+									errorFolders = append(errorFolders, entry.Name())
+									continue
 								}
 								//サムネイル画像を作成する
 								creatIcoThumbnail(booth.ItemSrc, booth.Id, imagesAvatarsPath, inAvatarsFolder)
@@ -351,6 +354,8 @@ func GoServer(a *App) {
 
 							if err := os.Rename(startLocation, endLocation); err != nil {
 								fmt.Println("ファイルの移動に失敗しました:", err)
+								errorFolders = append(errorFolders, entry.Name())
+								continue
 							}
 
 							//サーバーへの負荷対策
@@ -365,6 +370,9 @@ func GoServer(a *App) {
 
 		time.Sleep(1 * time.Second)
 		sendWebsocket(false, count, count)
+
+		time.Sleep(500 * time.Millisecond)
+		runtime.EventsEmit(a.ctx, "errorFolders", errorFolders)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
