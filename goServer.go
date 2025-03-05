@@ -371,8 +371,10 @@ func GoServer(a *App) {
 		time.Sleep(1 * time.Second)
 		sendWebsocket(false, count, count)
 
-		time.Sleep(500 * time.Millisecond)
-		runtime.EventsEmit(a.ctx, "errorFolders", errorFolders)
+		if len(errorFolders) != 0 {
+			time.Sleep(500 * time.Millisecond)
+			runtime.EventsEmit(a.ctx, "errorFolders", errorFolders)
+		}
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
