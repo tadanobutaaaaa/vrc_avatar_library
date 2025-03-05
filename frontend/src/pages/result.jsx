@@ -1,16 +1,25 @@
 import React from 'react';
 import Header from '../components/Header';
-
+import { toaster } from "@/components/ui/toaster";
 import { Box, Heading, Text, Stack } from "@chakra-ui/react";
 import { Button } from "@/components/ui/button"
 import { OpenFolder } from "../../wailsjs/go/main/App";
-import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
+import { BrowserOpenURL, EventsOn } from "../../wailsjs/runtime/runtime";
 import goWebSocket from '../hooks/goWebSocket';
 import { useNavigate } from "react-router-dom";
 
 function Result(){
     const navigate = useNavigate()
     goWebSocket("/processing")
+
+    EventsOn("errorFolders", (Folders) => {
+        toaster.create({
+            title: "エラーが発生したため一部のフォルダが処理されませんでした",
+            description: "エラーが発生したフォルダは以下の通りです:" + Folders,
+            duration: 15000,
+            type: "error",
+        })
+    })
 
     const checkAvatarsPath = () => {
             OpenFolder().then((res) => {
