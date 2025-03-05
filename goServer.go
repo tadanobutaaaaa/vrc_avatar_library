@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -235,7 +236,15 @@ func GoServer(a *App) {
 
 		fmt.Println("送信されたデータ:", jsonData)
 		
-		avatarsPath, imagesPath ,configSearchPath := checkConfigAvatarsPath()
+		paths := checkConfigAvatarsPath()
+		avatarsPath, imagesPath, configSearchPath, configIsShopPath := paths[0], paths[1], paths[2], paths[3]
+
+		// configIsShopPath を bool に変換
+        isShopFolder, err := strconv.ParseBool(configIsShopPath)
+        if err != nil {
+            fmt.Println("isShopFolderの変換に失敗しました:", err)
+            return
+        }
 
 		//Avatarsフォルダが存在しない場合は作成する
 		if _, err := os.Stat(avatarsPath); os.IsNotExist(err) {
@@ -253,12 +262,19 @@ func GoServer(a *App) {
 				return
 			}
 		}
+
+		//Shopフォルダが存在しない場合は作成する
 		if _, err := os.Stat(imagesAvatarsPath); os.IsNotExist(err) {
 			if err := os.Mkdir(imagesAvatarsPath, 0750); err != nil {
 				return
 			}
-			if err := os.Mkdir(imagesShopPath, 0750); err != nil {
-				return
+		}
+		//チェックボックスにチェックが付いていて、Shopフォルダが存在しない場合は作成する
+		if isShopFolder {
+			if _, err := os.Stat(imagesShopPath); os.IsNotExist(err) {
+				if err := os.Mkdir(imagesShopPath, 0750); err != nil {
+					return
+				}
 			}
 		}
 
@@ -293,39 +309,45 @@ func GoServer(a *App) {
 						if entry.IsDir() && strings.Contains(name, entry.Name()) {
 							fmt.Println("サムネイル画像を作成しています:", entry.Name())
 							//サムネイル画像が保存されているフォルダがあるか確認する
-							inAvatarsShopFolder := filepath.Join(avatarsPath, booth.ShopId ,booth.Id)
+							inAvatarsFolder := filepath.Join(avatarsPath, booth.ShopId ,booth.Id)
 							ShopFolder := filepath.Join(avatarsPath, booth.ShopId)
+							//チェックボックスにチェックが付いていない場合、Shopフォルダに保存しない
+							if !isShopFolder {
+								inAvatarsFolder = filepath.Join(avatarsPath, booth.Id)
+							}
 							//フォルダ名に使用できない文字を置き換える
 							cleanedString := exchangeString(entry.Name())
-							if _, err := os.Stat(filepath.Join(inAvatarsShopFolder, cleanedString)); err == nil {
+							if _, err := os.Stat(filepath.Join(inAvatarsFolder, cleanedString)); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
 								processedCount++
 								continue
 							}
 
-							if _, err := os.Stat(ShopFolder); os.IsNotExist(err) {
-								if err := os.MkdirAll(ShopFolder, 0750); err != nil {
-									log.Println("ディレクトリの作成に失敗しました:", err)
-									return
+							if isShopFolder {
+								if _, err := os.Stat(ShopFolder); os.IsNotExist(err) {
+									if err := os.Mkdir(ShopFolder, 0750); err != nil {
+										log.Println("ディレクトリの作成に失敗しました:", err)
+										return
+									}
+									//サムネイル画像を作成する
+									creatIcoThumbnail(booth.ShopSrc, booth.ShopId, imagesShopPath, ShopFolder)
+									time.Sleep(1 * time.Second)
 								}
-								//サムネイル画像を作成する
-								creatIcoThumbnail(booth.ShopSrc, booth.ShopId, imagesShopPath, ShopFolder)
-								time.Sleep(1 * time.Second)
 							}
 
-							if _, err := os.Stat(inAvatarsShopFolder); os.IsNotExist(err) {
-								if err := os.Mkdir(inAvatarsShopFolder, 0750); err != nil {
+							if _, err := os.Stat(inAvatarsFolder); os.IsNotExist(err) {
+								if err := os.Mkdir(inAvatarsFolder, 0750); err != nil {
 									log.Println("ディレクトリの作成に失敗しました2:", err)
 									return
 								}
 								//サムネイル画像を作成する
-								creatIcoThumbnail(booth.ItemSrc, booth.Id, imagesAvatarsPath, inAvatarsShopFolder)
+								creatIcoThumbnail(booth.ItemSrc, booth.Id, imagesAvatarsPath, inAvatarsFolder)
 							}
 
 							//ファイルの移動元
 							startLocation := filepath.Join(configSearchPath, entry.Name())
 							//ファイルの移動先
-							endLocation := filepath.Join(inAvatarsShopFolder, cleanedString)
+							endLocation := filepath.Join(inAvatarsFolder, cleanedString)
 
 							if err := os.Rename(startLocation, endLocation); err != nil {
 								fmt.Println("ファイルの移動に失敗しました:", err)

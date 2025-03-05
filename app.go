@@ -38,7 +38,7 @@ var (
 )
 
 // config.jsonの値を取得する関数
-func checkConfigAvatarsPath() (string, string, string) {
+func checkConfigAvatarsPath() []string {
 	file, err := os.Open(configJson)
 	if err != nil {
 		fmt.Println("設定ファイルが見つかりませんでした:", err)
@@ -54,8 +54,9 @@ func checkConfigAvatarsPath() (string, string, string) {
 	avatarsPath := filepath.Join(config.MoveFolder, "Avatars")
 	imagesPath := filepath.Join(config.MoveFolder, "Images")
 	configSearchPath := config.SearchFolder
+	configIsShopPath := fmt.Sprintf("%t", config.IsShopFolder)
 
-	return avatarsPath, imagesPath ,configSearchPath
+	return []string{avatarsPath, imagesPath ,configSearchPath, configIsShopPath}
 }
 
 // NewApp creates a new App application struct
@@ -151,7 +152,8 @@ func (a *App) GetFolder(keyName string) string {
 }
 
 func (a *App) OpenFolder() string {
-	avatarsFolderPath, _, _ := checkConfigAvatarsPath()
+	paths := checkConfigAvatarsPath()
+	avatarsFolderPath := paths[0]
 	info, err := os.Stat(avatarsFolderPath)
 	if os.IsNotExist(err) || err != nil || !info.IsDir() {
         return "Error"
