@@ -30,11 +30,8 @@ import (
 type Root map[string][]map[string]Booth
 
 type Booth struct {
-	Id   string `json:"id"`
-	ItemSrc string `json:"itemSrc"`
-	ShopId string `json:"shopId"`
-	ShopName string `json:"shopName"`
-	ShopSrc string `json:"shopSrc"`
+	Id   string `json:"id"`	
+	Src string `json:"shopSrc"`
 }
 
 var (
@@ -50,6 +47,7 @@ func exchangeString(folderName string) string {
 	fileName = regexp.MustCompile(`_+`).ReplaceAllString(fileName, "_")
 	// 先頭と末尾の_を削除
 	fileName = regexp.MustCompile(`^_+|_+$`).ReplaceAllString(fileName, "")
+	fmt.Println("フォルダ名:", fileName)
 	return fileName 
 }
 
@@ -310,31 +308,13 @@ func GoServer(a *App) {
 						if entry.IsDir() && strings.Contains(name, entry.Name()) {
 							fmt.Println("サムネイル画像を作成しています:", entry.Name())
 							//サムネイル画像が保存されているフォルダがあるか確認する
-							inAvatarsFolder := filepath.Join(avatarsPath, booth.ShopId ,booth.Id)
-							ShopFolder := filepath.Join(avatarsPath, booth.ShopId)
-							//チェックボックスにチェックが付いていない場合、Shopフォルダに保存しない
-							if !isShopFolder {
-								inAvatarsFolder = filepath.Join(avatarsPath, booth.Id)
-							}
+							inAvatarsFolder := filepath.Join(avatarsPath, booth.Id)
 							//フォルダ名に使用できない文字を置き換える
 							cleanedString := exchangeString(entry.Name())
 							if _, err := os.Stat(filepath.Join(inAvatarsFolder, cleanedString)); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
 								processedCount++
 								continue
-							}
-
-							if isShopFolder {
-								if _, err := os.Stat(ShopFolder); os.IsNotExist(err) {
-									if err := os.Mkdir(ShopFolder, 0750); err != nil {
-										log.Println("ディレクトリの作成に失敗しました:", err)
-										errorFolders = append(errorFolders, entry.Name())
-										continue
-									}
-									//サムネイル画像を作成する
-									creatIcoThumbnail(booth.ShopSrc, booth.ShopId, imagesShopPath, ShopFolder)
-									time.Sleep(1 * time.Second)
-								}
 							}
 
 							if _, err := os.Stat(inAvatarsFolder); os.IsNotExist(err) {
@@ -344,7 +324,7 @@ func GoServer(a *App) {
 									continue
 								}
 								//サムネイル画像を作成する
-								creatIcoThumbnail(booth.ItemSrc, booth.Id, imagesAvatarsPath, inAvatarsFolder)
+								creatIcoThumbnail(booth.Src, booth.Id, imagesAvatarsPath, inAvatarsFolder)
 							}
 
 							//ファイルの移動元

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Header from '../components/Header';
 import { SelectFolder, GetFolder, WriteJsonFile } from '../../wailsjs/go/main/App';
-import { FolderSearch, Folder, ShoppingBag, Search } from 'lucide-react';
+import { FolderSearch, Folder, Search } from 'lucide-react';
 import { IconButton, Flex, Text, Box } from "@chakra-ui/react"; 
 import { useColorModeValue } from "@/components/ui/color-mode"
-import { Checkbox } from "@/components/ui/checkbox"
 import goWebSocket from "../hooks/goWebSocket";
 
 
@@ -13,7 +12,6 @@ function SetupProcess() {
 
     const [searchFolder, setSearchFolder] = useState("")
     const [moveFolder, setMoveFolder] = useState("")
-    const [isChecked, setIsChecked] = useState(false)
 
     const bgColor = useColorModeValue("gray.100", "gray.400")
 
@@ -122,25 +120,6 @@ function SetupProcess() {
                         ※このシステムでは、ドライブをまたいでの移動ができません。
                     </Text>
                 </Box>
-            </Box>
-            <Box ml="50px" mt="30px">
-                <Box background="#c0c0c0" w="85%" p="20px" borderRadius="md">
-                    <Flex alignItems="center" gap="6px" mb="5px">
-                        <ShoppingBag />
-                        <Text textStyle="2xl" fontWeight="bold">ショップごとにフォルダを分ける機能</Text>
-                    </Flex>
-                    <Flex ml="10px" mt="10px" gap="5px" mb="10px">
-                        <Checkbox size="md" checked={isChecked} onCheckedChange={({checked}) => handleCheckedChange(checked)}>
-                            <Text fontWeight="semibold">機能をONにする</Text>
-                        </Checkbox>
-                    </Flex>
-                    <Text fontWeight="semibold" mt="5px">
-                        この機能をONにすると、ショップのフォルダの中に、各商品のフォルダが自動的に作成されます。<br/>
-                    </Text>
-                    <Text fontWeight="semibold" color="red.600">
-                        ※フォルダが多くなり、処理時間が増えますので注意してください。
-                    </Text>
-            </Box>
             </Box>
         </>
     )
