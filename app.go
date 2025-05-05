@@ -22,7 +22,6 @@ type ConfigMoveFolder struct {
 type Config struct {
 	SearchFolder string `json:"searchFolder"`
 	MoveFolder   string `json:"moveFolder"`
-	IsShopFolder bool   `json:"isShopFolder"`
 }
 
 // App struct
@@ -53,10 +52,8 @@ func checkConfigAvatarsPath() []string {
 
 	avatarsPath := filepath.Join(config.MoveFolder, "Avatars")
 	imagesPath := filepath.Join(config.MoveFolder, "Images")
-	configSearchPath := config.SearchFolder
-	configIsShopPath := fmt.Sprintf("%t", config.IsShopFolder)
 
-	return []string{avatarsPath, imagesPath ,configSearchPath, configIsShopPath}
+	return []string{avatarsPath, imagesPath}
 }
 
 // NewApp creates a new App application struct
@@ -144,8 +141,6 @@ func (a *App) GetFolder(keyName string) string {
         return config.SearchFolder
     case "moveFolder":
         return config.MoveFolder
-	case "isShopFolder":
-		return fmt.Sprintf("%t", config.IsShopFolder)
     default:
         return ""
     }
@@ -173,7 +168,6 @@ func (a *App) MakeConfig() {
 		initialConfig := Config{
 			SearchFolder: DownloadPath,
 			MoveFolder:   AvatarsPath,
-			IsShopFolder: false,
 		}
 
 		file, err := os.Create(configJson)
@@ -206,9 +200,6 @@ func (a *App) MakeConfig() {
         if _, ok := configData["moveFolder"]; !ok {
             configData["moveFolder"] = AvatarsPath
         }
-		if _, ok := configData["isShopFolder"]; !ok {
-			configData["isShopFolder"] = false
-		}
 
         // JSONをエンコード
         newJSON, err := json.MarshalIndent(configData, "", "  ")

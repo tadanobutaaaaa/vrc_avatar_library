@@ -26,14 +26,8 @@ function SetupProcess() {
                 setMoveFolder(res)
             })
         }
-        const writeJsonisShopFolder = async () => {
-            await GetFolder("isShopFolder").then((res) => {
-                setIsChecked(JSON.parse(res))
-            })
-        }
         writeJsonMoveFolder()
         writeJsonSearchFolder()
-        writeJsonisShopFolder()
     }, [])
 
     const SelectFolderProcess = () => {

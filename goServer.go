@@ -12,7 +12,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -31,7 +30,7 @@ type Root map[string][]map[string]Booth
 
 type Booth struct {
 	Id   string `json:"id"`	
-	Src string `json:"shopSrc"`
+	Src string `json:"Src"`
 }
 
 var (
@@ -236,14 +235,7 @@ func GoServer(a *App) {
 		fmt.Println("送信されたデータ:", jsonData)
 		
 		paths := checkConfigAvatarsPath()
-		avatarsPath, imagesPath, configSearchPath, configIsShopPath := paths[0], paths[1], paths[2], paths[3]
-
-		// configIsShopPath を bool に変換
-        isShopFolder, err := strconv.ParseBool(configIsShopPath)
-        if err != nil {
-            fmt.Println("isShopFolderの変換に失敗しました:", err)
-            return
-        }
+		avatarsPath, imagesPath, configSearchPath := paths[0], paths[1], paths[2]
 
 		//Avatarsフォルダが存在しない場合は作成する
 		if _, err := os.Stat(avatarsPath); os.IsNotExist(err) {
@@ -253,7 +245,6 @@ func GoServer(a *App) {
 		}
 
 		imagesAvatarsPath := filepath.Join(imagesPath, "Avatars")
-		imagesShopPath := filepath.Join(imagesPath, "Shop")
 
 		//Imagesフォルダが存在しない場合は作成する
 		if _, err := os.Stat(imagesPath); os.IsNotExist(err) {
@@ -262,18 +253,9 @@ func GoServer(a *App) {
 			}
 		}
 
-		//Shopフォルダが存在しない場合は作成する
 		if _, err := os.Stat(imagesAvatarsPath); os.IsNotExist(err) {
 			if err := os.Mkdir(imagesAvatarsPath, 0750); err != nil {
 				return
-			}
-		}
-		//チェックボックスにチェックが付いていて、Shopフォルダが存在しない場合は作成する
-		if isShopFolder {
-			if _, err := os.Stat(imagesShopPath); os.IsNotExist(err) {
-				if err := os.Mkdir(imagesShopPath, 0750); err != nil {
-					return
-				}
 			}
 		}
 
@@ -319,7 +301,7 @@ func GoServer(a *App) {
 
 							if _, err := os.Stat(inAvatarsFolder); os.IsNotExist(err) {
 								if err := os.Mkdir(inAvatarsFolder, 0750); err != nil {
-									log.Println("ディレクトリの作成に失敗しました2:", err)
+									log.Println("ディレクトリの作成に失敗しました:", err)
 									errorFolders = append(errorFolders, entry.Name())
 									continue
 								}
