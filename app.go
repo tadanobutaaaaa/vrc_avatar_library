@@ -52,8 +52,9 @@ func checkConfigAvatarsPath() []string {
 
 	avatarsPath := filepath.Join(config.MoveFolder, "Avatars")
 	imagesPath := filepath.Join(config.MoveFolder, "Images")
+	configSearchPath := config.SearchFolder
 
-	return []string{avatarsPath, imagesPath}
+	return []string{avatarsPath, imagesPath, configSearchPath}
 }
 
 // NewApp creates a new App application struct

@@ -11,7 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
+	//"regexp"
 	"strings"
 	"sync"
 	"syscall"
@@ -30,7 +30,7 @@ type Root map[string][]map[string]Booth
 
 type Booth struct {
 	Id   string `json:"id"`	
-	Src string `json:"Src"`
+	Src string `json:"src"`
 }
 
 var (
@@ -38,6 +38,7 @@ var (
 	clients = make(map[*websocket.Conn]bool)
 )
 
+/*
 func exchangeString(folderName string) string {
 	//英数字、記号、日本語のみを許可する(それ以外の文字を_に置き換え 例: 2021/01/01 -> 2021_01_01)
 	re := regexp.MustCompile(`[^a-zA-Z0-9!@#\$%\^&\(\)_\+\-\=\[\]\{\};',.\~\s\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{4E00}-\x{9FFF}]*$`)
@@ -49,6 +50,7 @@ func exchangeString(folderName string) string {
 	fmt.Println("フォルダ名:", fileName)
 	return fileName 
 }
+*/
 
 func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) {
 	if (strings.HasPrefix(url, "https://booth.pximg.net/")) {
@@ -292,7 +294,7 @@ func GoServer(a *App) {
 							//サムネイル画像が保存されているフォルダがあるか確認する
 							inAvatarsFolder := filepath.Join(avatarsPath, booth.Id)
 							//フォルダ名に使用できない文字を置き換える
-							cleanedString := exchangeString(entry.Name())
+							cleanedString := entry.Name()
 							if _, err := os.Stat(filepath.Join(inAvatarsFolder, cleanedString)); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
 								processedCount++
