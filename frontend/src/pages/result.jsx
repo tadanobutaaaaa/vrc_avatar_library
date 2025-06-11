@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from '../components/Header';
 import { toaster } from "@/components/ui/toaster";
 import { Box, Heading, Text, Stack } from "@chakra-ui/react";
@@ -12,14 +12,16 @@ function Result(){
     const navigate = useNavigate()
     goWebSocket("/processing")
 
-    EventsOn("errorFolders", (Folders) => {
-        toaster.create({
-            title: "エラーが発生したため一部のフォルダが処理されませんでした",
-            description: "エラーが発生したフォルダは以下の通りです:" + Folders,
-            duration: 15000,
-            type: "error",
-        })
-    })
+    useEffect(() => {
+        const off = EventsOn("errorFolders", () => {
+            toaster.create({
+                title: "一部のフォルダが正常に処理されませんでした",
+                duration: 15000,
+                type: "error",
+            })
+        });
+        return off;
+    }, [])
 
     const checkAvatarsPath = () => {
             OpenFolder().then((res) => {
@@ -30,6 +32,7 @@ function Result(){
                             description: "Chrome拡張機能から処理を開始させてフォルダを生成してください",
                             duration: 4000,
                             type: "warning",
+                            style: { marginRight: "10px" }
                         })
                     )
                 } else {
