@@ -46,11 +46,6 @@ function SetupProcess() {
         })
     }
 
-    const handleCheckedChange = (checked) => {
-        WriteJsonFile("isShopFolder", checked)
-        setIsChecked(checked)
-    }
-
     return (
         <>
             <Header />
