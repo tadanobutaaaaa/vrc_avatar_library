@@ -1,69 +1,20 @@
 import React, { useState } from 'react';
 import { WriteURLAndUpdate } from '../../wailsjs/go/main/App';
-import { BookText, Settings, Folder, CircleHelp } from 'lucide-react';
+import { BookText, Settings, Folder, CircleHelp, FolderCog, FolderSearch } from 'lucide-react';
 import { BrowserOpenURL, EventsOn } from "../../wailsjs/runtime/runtime";
-import { Heading, Center, Box, Text, Image, Link, Flex, Icon }from "@chakra-ui/react";
+import { SelectFolder } from '../../wailsjs/go/main/App';
+import { Heading, Center, Box, Text, Image, Link, Flex, Icon, Tabs, Field, Fieldset, Input, Stack, IconButton }from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster"
 import Header from '../components/Header';
 import { Alert } from "@/components/ui/alert"
 import goWebSocket from '../hooks/goWebSocket';
 import { Button } from "@/components/ui/button"
+import { useColorModeValue } from "@/components/ui/color-mode"
 import { DialogActionTrigger, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot, DialogTitle } from "@/components/ui/dialog"
 
-function Home(){
-    const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
-    const [latestVersion, setLatestVersion] = useState("")
-    const [latestVersionURL, setLatestVersionURL] = useState("")
-
-    EventsOn("updateAvailable", (data) => { 
-        setIsUpdateAvailable(true)
-        setLatestVersion(data.version)
-        setLatestVersionURL(data.url)
-    })
-
-    const handleUpdateNow = async () => {
-        //アップデートを実行する処理の実行
-        try{
-            setIsUpdateAvailable(false)
-            await WriteURLAndUpdate()
-        } catch(e) {
-            console.log(e)
-            toaster.create({
-                title: "アップデートに失敗しました",
-                description: "アプリを再起動し、再度お試しください。",
-                type: "error",
-            })
-        }
-    }
-
-    const handleUpdateLater = () => {
-        setIsUpdateAvailable(false)
-    }
-
-    goWebSocket("/processing")
+function manual() {
     return (
         <>
-            <Header />
-                <DialogRoot open={isUpdateAvailable}>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>アップデートのお知らせ</DialogTitle>
-                        </DialogHeader>
-                        <DialogBody>
-                            <p>
-                            🎉 新しいバージョン <strong>Ver.{latestVersion}</strong> が登場しました！<br />
-                            リリースノートは<Link onClick={() => {BrowserOpenURL(latestVersionURL)}} variant="underline" colorPalette="blue" _hover={{ color: "teal" }} fontWeight="bold">こちら</Link>から確認できます。<br />
-                            今すぐアップデートして最新の機能をお試しください！
-                            </p>
-                        </DialogBody>
-                        <DialogFooter>
-                            <DialogActionTrigger asChild>
-                                <Button variant="outline" size="sm" onClick={handleUpdateLater}>後で</Button>
-                            </DialogActionTrigger>
-                            <Button onClick={handleUpdateNow} size="sm" >アップデートする</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </DialogRoot>
             <Center mt="20px">
                 <BookText size="40px"/>
                 <Heading size="4xl" ml="5px">使い方</Heading>
@@ -225,7 +176,149 @@ function Home(){
                 </Box>
             </Flex>
         </>
-    );
+    )
 }
 
+function selfProcess() {
+    const [processFolder, setProcessFolder] = useState("")
+    const bgColor = useColorModeValue("gray.100", "gray.400")
+
+    const SelectFolderProcess = () => {
+            SelectFolder("searchFolder").then((res) => {
+                if (res !== "Error") {
+                    setProcessFolder(res)
+                }
+            })
+        }
+
+    return (
+        <>
+            <Flex 
+                mt="20px" 
+                direction="column"
+                align="center"
+                justify="center"
+                >
+                <Flex algin="center">
+                    <FolderCog size="40px"/>
+                    <Heading size="4xl" ml="5px">手動設定</Heading>
+                </Flex>
+
+                <Fieldset.Root size="lg" maxW="md">
+            <Stack mt="30px">
+                <Fieldset.Legend>フォルダーのサムネイル設定</Fieldset.Legend>
+                <Fieldset.HelperText>
+                以下に必要事項を入力してください。
+                </Fieldset.HelperText>
+            </Stack>
+
+            <Fieldset.Content>
+                <Field.Root>
+                <Field.Label>商品URL</Field.Label>
+                <Input name="url" />
+                </Field.Root>
+
+            <Flex gap="4px" alignItems="center">
+                <Flex maxW="800px">
+                    <Text 
+                        textStyle="md" 
+                        bgColor={bgColor}
+                        borderRadius="sm"
+                        py="3px"
+                        px="6px"
+                        truncate>{processFolder}</Text>
+                </Flex>
+                <IconButton 
+                    onClick={() => {SelectFolderProcess()}}
+                    variant="ghost"
+                    aria-label='Toggle color mode'
+                    >
+                    <FolderSearch />
+                </IconButton>
+            </Flex>
+            </Fieldset.Content>
+
+            <Button type="submit" alignSelf="flex-start">
+                決定
+            </Button>
+            </Fieldset.Root>
+            </Flex>
+        </>
+    )
+}
+
+function Home(){
+    const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
+    const [latestVersion, setLatestVersion] = useState("")
+    const [latestVersionURL, setLatestVersionURL] = useState("")
+
+    EventsOn("updateAvailable", (data) => { 
+        setIsUpdateAvailable(true)
+        setLatestVersion(data.version)
+        setLatestVersionURL(data.url)
+    })
+
+    const handleUpdateNow = async () => {
+        //アップデートを実行する処理の実行
+        try{
+            setIsUpdateAvailable(false)
+            await WriteURLAndUpdate()
+        } catch(e) {
+            console.log(e)
+            toaster.create({
+                title: "アップデートに失敗しました",
+                description: "アプリを再起動し、再度お試しください。",
+                type: "error",
+            })
+        }
+    }
+
+    const handleUpdateLater = () => {
+        setIsUpdateAvailable(false)
+    }
+
+    goWebSocket("/processing")
+    return (
+        <>
+            <Header />
+                <DialogRoot open={isUpdateAvailable}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>アップデートのお知らせ</DialogTitle>
+                        </DialogHeader>
+                        <DialogBody>
+                            <p>
+                            🎉 新しいバージョン <strong>Ver.{latestVersion}</strong> が登場しました！<br />
+                            リリースノートは<Link onClick={() => {BrowserOpenURL(latestVersionURL)}} variant="underline" colorPalette="blue" _hover={{ color: "teal" }} fontWeight="bold">こちら</Link>から確認できます。<br />
+                            今すぐアップデートして最新の機能をお試しください！
+                            </p>
+                        </DialogBody>
+                        <DialogFooter>
+                            <DialogActionTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={handleUpdateLater}>後で</Button>
+                            </DialogActionTrigger>
+                            <Button onClick={handleUpdateNow} size="sm" >アップデートする</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </DialogRoot>
+            <Tabs.Root lazyMount unmoutOnExit defaultValue="home">
+                <Tabs.List>
+                    <Tabs.Trigger value="manual">
+                        <BookText size="18px"/>
+                        使い方
+                    </Tabs.Trigger>
+                    <Tabs.Trigger value="selfProcess">
+                        <FolderCog size="20px"/>
+                        手動設定
+                    </Tabs.Trigger>
+                    <Tabs.Indicator />
+                </Tabs.List>
+
+                <Tabs.Content value="manual">{manual()}</Tabs.Content>
+                <Tabs.Content value="selfProcess">{selfProcess()}</Tabs.Content>
+            <Tabs.Content />
+            </Tabs.Root>
+        </>
+    );
+}
 export default Home
