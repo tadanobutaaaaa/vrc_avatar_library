@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { WriteURLAndUpdate } from '../../wailsjs/go/main/App';
+import { WriteURLAndUpdate, SelfProcessing } from '../../wailsjs/go/main/App';
 import { BookText, Settings, Folder, CircleHelp, FolderCog, FolderSearch } from 'lucide-react';
 import { BrowserOpenURL, EventsOn } from "../../wailsjs/runtime/runtime";
 import { SelectFolder } from '../../wailsjs/go/main/App';
@@ -11,6 +11,7 @@ import goWebSocket from '../hooks/goWebSocket';
 import { Button } from "@/components/ui/button"
 import { useColorModeValue } from "@/components/ui/color-mode"
 import { DialogActionTrigger, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogRoot, DialogTitle } from "@/components/ui/dialog"
+import { useForm } from "react-hook-form"
 
 function manual() {
     return (
@@ -179,20 +180,33 @@ function manual() {
     )
 }
 
-function selfProcess() {
+const selfProcess = () => {
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors }
+    } = useForm()
     const [processFolder, setProcessFolder] = useState("")
     const bgColor = useColorModeValue("gray.100", "gray.400")
 
+    const SelfProcessingProcess = (src, pass) => {
+        SelfProcessing(src, pass)
+    }
+
     const SelectFolderProcess = () => {
-            SelectFolder("searchFolder").then((res) => {
+            SelectFolder("", true).then((res) => {
                 if (res !== "Error") {
                     setProcessFolder(res)
+                    setValue("folder", res)
                 }
             })
         }
 
+    const onSubmit = handleSubmit((data) => SelfProcessingProcess(data.url, data.folder))
+
     return (
-        <>
+        <form onSubmit={onSubmit}>
             <Flex 
                 mt="20px" 
                 direction="column"
@@ -213,29 +227,57 @@ function selfProcess() {
             </Stack>
 
             <Fieldset.Content>
-                <Field.Root>
-                <Field.Label>商品URL</Field.Label>
-                <Input name="url" />
+                <Field.Root required invalid={!!errors.url}>
+                    <Field.Label>
+                        商品URL
+                        <Field.RequiredIndicator />
+                    </Field.Label>
+                    <Input {...register("url")} />
+                    <Field.HelperText>
+                        処理可能なURL<br />
+                        <strong>・https://booth.pm/ja/items/{"{商品番号}"}</strong><br />
+                        <strong>・https://{"{ショップ名}"}booth.pm/items/{"{商品番号}"}</strong>
+                    </Field.HelperText>
+                    <Field.ErrorText>{errors.url?.message}</Field.ErrorText>
                 </Field.Root>
 
-            <Flex gap="4px" alignItems="center">
-                <Flex maxW="800px">
-                    <Text 
-                        textStyle="md" 
-                        bgColor={bgColor}
-                        borderRadius="sm"
-                        py="3px"
-                        px="6px"
-                        truncate>{processFolder}</Text>
-                </Flex>
-                <IconButton 
-                    onClick={() => {SelectFolderProcess()}}
-                    variant="ghost"
-                    aria-label='Toggle color mode'
-                    >
-                    <FolderSearch />
-                </IconButton>
-            </Flex>
+                <Field.Root required invalid={!!errors.folder}>
+                    <Field.Label>
+                        フォルダ選択
+                        <Field.RequiredIndicator />
+                    </Field.Label>
+                    <input type="hidden" {...register("folder")} />
+                    <Flex gap="4px" alignItems="center">
+                        <Flex 
+                            minW="400px" 
+                            maxW="800px"
+                            minH="40px"
+                            bgColor={bgColor}
+                            borderRadius="sm"
+                            alignItems="center"
+                            px="12px"
+                            py="8px"
+                            border="1px solid"
+                            borderColor="gray.200"
+                        >
+                            <Text 
+                                textStyle="md" 
+                                color={processFolder ? "gray.800" : "gray.500"}
+                                truncate
+                            >
+                                {processFolder || "フォルダが選択されていません"}
+                            </Text>
+                        </Flex>
+                        <IconButton 
+                            onClick={() => {SelectFolderProcess()}}
+                            variant="ghost"
+                            aria-label='フォルダを選択'
+                            >
+                            <FolderSearch />
+                        </IconButton>
+                    </Flex>
+                    <Field.ErrorText>{errors.folder?.message}</Field.ErrorText>
+                </Field.Root>
             </Fieldset.Content>
 
             <Button type="submit" alignSelf="flex-start">
@@ -243,7 +285,7 @@ function selfProcess() {
             </Button>
             </Fieldset.Root>
             </Flex>
-        </>
+        </form>
     )
 }
 
@@ -303,7 +345,7 @@ function Home(){
                 </DialogRoot>
             <Tabs.Root lazyMount unmoutOnExit defaultValue="home">
                 <Tabs.List>
-                    <Tabs.Trigger value="manual">
+                    <Tabs.Trigger value="home">
                         <BookText size="18px"/>
                         使い方
                     </Tabs.Trigger>
@@ -314,9 +356,8 @@ function Home(){
                     <Tabs.Indicator />
                 </Tabs.List>
 
-                <Tabs.Content value="manual">{manual()}</Tabs.Content>
+                <Tabs.Content value="home">{manual()}</Tabs.Content>
                 <Tabs.Content value="selfProcess">{selfProcess()}</Tabs.Content>
-            <Tabs.Content />
             </Tabs.Root>
         </>
     );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from '../components/Header';
-import { SelectFolder, GetFolder, WriteJsonFile } from '../../wailsjs/go/main/App';
+import { SelectFolder, GetFolder } from '../../wailsjs/go/main/App';
 import { FolderSearch, Folder, Search } from 'lucide-react';
 import { IconButton, Flex, Text, Box } from "@chakra-ui/react"; 
 import { useColorModeValue } from "@/components/ui/color-mode"
@@ -30,18 +30,14 @@ function SetupProcess() {
         writeJsonSearchFolder()
     }, [])
 
-    const SelectFolderProcess = () => {
-        SelectFolder("searchFolder").then((res) => {
+    const SelectFolderProcess = (folderName, notWrite) => {
+        SelectFolder(folderName, notWrite).then((res) => {
             if (res !== "Error") {
-                setSearchFolder(res)
-            }
-        })
-    }
-
-    const SelectMoveFolderProcess = () => {
-        SelectFolder("moveFolder").then((res) => {
-            if (res !== "Error") {
-                setMoveFolder(res)
+                if (folderName === "moveFolder") {
+                    setMoveFolder(res)
+                } else if (folderName === "searchFolder") {
+                    setSearchFolder(res)
+                }
             }
         })
     }
@@ -56,17 +52,25 @@ function SetupProcess() {
                         <Text textStyle="2xl" fontWeight="bold">検索フォルダ</Text>
                     </Flex>
                     <Flex gap="4px" alignItems="center">
-                        <Flex maxW="800px">
+                        <Flex 
+                            minW="100px" 
+                            maxW="800px"
+                            minH="40px"
+                            bgColor={bgColor}
+                            borderRadius="sm"
+                            alignItems="center"
+                            px="12px"
+                            py="8px"
+                            border="1px solid"
+                            borderColor="gray.200"
+                        >
                             <Text 
-                                textStyle="md" 
-                                bgColor={bgColor}
-                                borderRadius="sm"
-                                py="3px"
-                                px="6px"
-                                truncate>{searchFolder}</Text>
+                                textStyle="md"
+                                truncate
+                            >{searchFolder}</Text>
                         </Flex>
                         <IconButton 
-                            onClick={() => {SelectFolderProcess()}}
+                            onClick={() => {SelectFolderProcess("searchFolder", false)}}
                             variant="ghost"
                             aria-label='Toggle color mode'
                             >
@@ -83,17 +87,25 @@ function SetupProcess() {
                         <Text textStyle="2xl" fontWeight="bold">保存先のフォルダ</Text>
                     </Flex>
                     <Flex gap="4px" alignItems="center">
-                        <Flex maxW="800px">
+                        <Flex 
+                            minW="100px" 
+                            maxW="800px"
+                            minH="40px"
+                            bgColor={bgColor}
+                            borderRadius="sm"
+                            alignItems="center"
+                            px="12px"
+                            py="8px"
+                            border="1px solid"
+                            borderColor="gray.200"
+                        >
                             <Text 
                                 textStyle="md" 
-                                bgColor={bgColor}
-                                borderRadius="sm"
-                                py="3px"
-                                px="6px"
-                                truncate>{moveFolder}</Text>
+                                truncate
+                            >{moveFolder}</Text>
                         </Flex>
                         <IconButton 
-                            onClick={() => {SelectMoveFolderProcess()}}
+                            onClick={() => {SelectFolderProcess("moveFolder", false)}}
                             variant="ghost"
                             aria-label='Toggle color mode'
                             >

@@ -14,8 +14,12 @@ export function OpenFolder() {
   return window['go']['main']['App']['OpenFolder']();
 }
 
-export function SelectFolder(arg1) {
-  return window['go']['main']['App']['SelectFolder'](arg1);
+export function SelectFolder(arg1, arg2) {
+  return window['go']['main']['App']['SelectFolder'](arg1, arg2);
+}
+
+export function SelfProcessing(arg1, arg2) {
+  return window['go']['main']['App']['SelfProcessing'](arg1, arg2);
 }
 
 export function WriteJsonFile(arg1, arg2) {

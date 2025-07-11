@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gocolly/colly"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"context"
@@ -8,16 +9,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
 )
-
-type ConfigSearchFolder struct {
-	SearchFolder string `json:"searchFolder"`
-}
-
-type ConfigMoveFolder struct {
-	MoveFolder string `json:"moveFolder"`
-}
 
 type Config struct {
 	SearchFolder string `json:"searchFolder"`
@@ -107,16 +101,18 @@ func (a* App) WriteJsonFile(keyName string, valueName interface{}) interface{} {
 	return valueName
 }
 
-func (a *App) SelectFolder(keyName string) interface{} {
+func (a *App) SelectFolder(keyName string, notWrite bool) interface{} {
 	result, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "フォルダを選択",
 	})
-	if err != nil {
+
+	if result == "" || err != nil{
 		fmt.Println("フォルダを選択する際にエラーが発生しました: ", err)
+		return "Error"
 	}
 
-	if result == "" {
-		return "Error"
+	if notWrite{
+		return result
 	}
 
 	return a.WriteJsonFile(keyName, result)
@@ -227,6 +223,71 @@ func (a *App) WriteURLAndUpdate() error {
 		return err
 	}
 	return nil
+}
+
+func (a *App) SelfProcessing(url string, name string) string {
+	pattern := `^https://([a-zA-Z0-9-]+\.)?booth\.pm(?:/ja)?/items/(\d+)$`
+	re, _ := regexp.Compile(pattern)
+
+	if !re.MatchString(url) {
+		// URLが正しい形式ではない場合は処理を中断し、フロントエンド側でエラーメッセージを表示させる
+		runtime.EventsEmit(a.ctx, "toaster", "error", "URLの形式が正しくありません", "正しいURLを入力してください。")
+	}
+
+	matches := re.FindStringSubmatch(url)
+	boothId := matches[2]
+
+	c := colly.NewCollector()
+	var imageURL string
+
+	c.OnError(func(_ *colly.Response, err error) {
+		fmt.Println("エラーが発生しました:", err)
+		//TODO: エラーメッセージをフロントエンドに送信するなどの処理を追加する
+	})
+
+	c.OnHTML("img.market-item-detail-item-image", func(e *colly.HTMLElement) {
+		if imageURL == "" {  // 最初の画像のみ取得
+			imageURL = e.Attr("src")
+			fmt.Println("画像URL:", imageURL)
+    	}
+	})
+
+	c.Visit(url)
+
+    if imageURL == "" {
+		runtime.EventsEmit(a.ctx, "toaster", "error", "画像URLが取得できませんでした", "URLが正しいか確認してください。")
+        return "Error"
+    }
+
+	//この後にスクレイピングで取得した画像URLを使って画像をダウンロードする処理を追加する
+	_, avatarsPath, imagesPath := isFolder(a)
+	inAvatarsFolder := filepath.Join(avatarsPath, boothId)
+
+	if _, err := os.Stat(filepath.Join(inAvatarsFolder, filepath.Base(name))); err == nil{
+		runtime.EventsEmit(a.ctx, "toaster", "warning", "ファイルが既に存在します", "")
+        return imageURL
+	}
+
+	if _, err := os.Stat(inAvatarsFolder); os.IsNotExist(err) {
+		if err := os.Mkdir(inAvatarsFolder, 0750); err != nil {
+			fmt.Println("ディレクトリの作成に失敗しました:", err)
+			runtime.EventsEmit(a.ctx, "toaster", "error", "フォルダ作成エラー", err.Error())
+            return "Error"
+		}
+		//サムネイル画像を作成する
+		creatIcoThumbnail(imageURL, boothId, imagesPath, inAvatarsFolder)
+	}
+	startLocation := name
+	endLocation := filepath.Join(inAvatarsFolder, filepath.Base(name))
+
+	if err := os.Rename(startLocation, endLocation); err != nil {
+		fmt.Println("ファイルの移動に失敗しました:", err)
+		runtime.EventsEmit(a.ctx, "toaster", "error", "ファイルの移動に失敗しました", "")
+	}
+	time.Sleep(1 * time.Second)
+
+	runtime.EventsEmit(a.ctx, "toaster", "success", "成功", "サムネイルを付与できました！")
+    return imageURL  // 成功時は画像URLを返す
 }
 
 // startup is called when the app starts. The context is saved

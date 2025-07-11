@@ -7,7 +7,9 @@ export function MakeConfig():Promise<void>;
 
 export function OpenFolder():Promise<string>;
 
-export function SelectFolder(arg1:string):Promise<any>;
+export function SelectFolder(arg1:string,arg2:boolean):Promise<any>;
+
+export function SelfProcessing(arg1:string,arg2:string):Promise<string>;
 
 export function WriteJsonFile(arg1:string,arg2:any):Promise<any>;
 

@@ -8,22 +8,24 @@ import { Link } from "react-router-dom";
 import Page from './colorModeButton';
 import React, { useEffect } from 'react';
 
+// Golang側でのテンプレート
+// runtime.EventsEmit(a.ctx, "toaster", "toasterの種類", "タイトル", "説明文")
 function Header ({ status = false }) {
-    const handleError = () => {
+    const handleError = (toasterType, toasterTitle, toasterDescription) => {
         toaster.create({
-            title: "ドライブを跨いだ処理が開始されたためエラーが発生しました",
-            description: "設定画面の「保存先のフォルダ」から設定を変更してください。",
+            title: toasterTitle,
+            description: toasterDescription,
             duration: 10000,
-            type: "error",
+            type: toasterType,
         })
     }
 
     useEffect(() => {
-        EventsOn("error", handleError)
+        EventsOn("toaster", handleError)
 
         // コンポーネントがアンマウントされるときにイベントリスナーを解除
         return () => {
-            EventsOff("error", handleError)
+            EventsOff("toaster", handleError)
         }
     }, [])
 

@@ -149,6 +149,34 @@ func sendWebsocket(status bool, complement int, processedCount int) {
 	}
 }
 
+func isFolder(a *App) (string, string, string) {
+	paths := checkConfigAvatarsPath()
+	avatarsPath, imagesPath, configSearchPath := paths[0], paths[1], paths[2]
+
+	//Avatarsフォルダが存在しない場合は作成する
+	if _, err := os.Stat(avatarsPath); os.IsNotExist(err) {
+		if err := os.Mkdir(avatarsPath, 0750); err != nil {
+			return "", "", ""
+		}
+	}
+
+	//Imagesフォルダが存在しない場合は作成する
+	if _, err := os.Stat(imagesPath); os.IsNotExist(err) {
+		if err := os.Mkdir(imagesPath, 0750); err != nil {
+			return "", "", ""
+		}
+	}
+
+	//検索フォルダと移動フォルダが異なる場合は処理を中断する
+	if filepath.VolumeName(configSearchPath) != filepath.VolumeName(avatarsPath) {
+		fmt.Println("ドライブが異なるため、処理を中断します。")
+		runtime.EventsEmit(a.ctx, "toaster", "error", "ドライブを跨いだ処理が開始されたためエラーが発生しました", "設定画面の「保存先のフォルダ」から設定を変更してください。")
+		return "", "", ""
+	}
+
+	return configSearchPath, avatarsPath, imagesPath
+}
+
 func GoServer(a *App) {
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
@@ -236,38 +264,8 @@ func GoServer(a *App) {
 		}
 
 		fmt.Println("送信されたデータ:", jsonData)
-		
-		paths := checkConfigAvatarsPath()
-		avatarsPath, imagesPath, configSearchPath := paths[0], paths[1], paths[2]
 
-		//Avatarsフォルダが存在しない場合は作成する
-		if _, err := os.Stat(avatarsPath); os.IsNotExist(err) {
-			if err := os.Mkdir(avatarsPath, 0750); err != nil {
-				return
-			}
-		}
-
-		imagesAvatarsPath := filepath.Join(imagesPath, "Avatars")
-
-		//Imagesフォルダが存在しない場合は作成する
-		if _, err := os.Stat(imagesPath); os.IsNotExist(err) {
-			if err := os.Mkdir(imagesPath, 0750); err != nil {
-				return
-			}
-		}
-
-		if _, err := os.Stat(imagesAvatarsPath); os.IsNotExist(err) {
-			if err := os.Mkdir(imagesAvatarsPath, 0750); err != nil {
-				return
-			}
-		}
-
-		//検索フォルダと移動フォルダが異なる場合は処理を中断する
-		if filepath.VolumeName(configSearchPath) != filepath.VolumeName(avatarsPath) {
-			fmt.Println("ドライブが異なるため、処理を中断します。")
-			runtime.EventsEmit(a.ctx, "error", "Rename")
-			return 
-		}
+		configSearchPath, avatarsPath, imagesPath := isFolder(a)
 
 		entries, err := os.ReadDir(configSearchPath)
 
@@ -294,7 +292,7 @@ func GoServer(a *App) {
 							fmt.Println("サムネイル画像を作成しています:", entry.Name())
 							//サムネイル画像が保存されているフォルダがあるか確認する
 							inAvatarsFolder := filepath.Join(avatarsPath, booth.Id)
-							//フォルダ名に使用できない文字を置き換える
+							//フォルダ名に使用できない文字を置き換える(予定)
 							cleanedString := entry.Name()
 							if _, err := os.Stat(filepath.Join(inAvatarsFolder, cleanedString)); err == nil {
 								// フォルダが既に存在する場合は処理を飛ばす
@@ -309,7 +307,7 @@ func GoServer(a *App) {
 									continue
 								}
 								//サムネイル画像を作成する
-								creatIcoThumbnail(booth.Src, booth.Id, imagesAvatarsPath, inAvatarsFolder)
+								creatIcoThumbnail(booth.Src, booth.Id, imagesPath, inAvatarsFolder)
 							}
 
 							//ファイルの移動元
