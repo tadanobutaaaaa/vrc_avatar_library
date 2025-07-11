@@ -188,10 +188,17 @@ const selfProcess = () => {
         formState: { errors }
     } = useForm()
     const [processFolder, setProcessFolder] = useState("")
+    const [isProcessig, setIsProcessing] = useState(false)
     const bgColor = useColorModeValue("gray.100", "gray.400")
 
     const SelfProcessingProcess = (src, pass) => {
-        SelfProcessing(src, pass)
+        setIsProcessing(true)
+        SelfProcessing(src, pass).then((res) => {
+            if (res) {
+                setIsProcessing(false)
+            }
+        })
+        se
     }
 
     const SelectFolderProcess = () => {
@@ -280,7 +287,7 @@ const selfProcess = () => {
                 </Field.Root>
             </Fieldset.Content>
 
-            <Button type="submit" alignSelf="flex-start">
+            <Button type="submit" alignSelf="flex-start" loading={isProcessig}>
                 決定
             </Button>
             </Fieldset.Root>

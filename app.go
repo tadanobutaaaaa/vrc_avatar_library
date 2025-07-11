@@ -225,7 +225,7 @@ func (a *App) WriteURLAndUpdate() error {
 	return nil
 }
 
-func (a *App) SelfProcessing(url string, name string) string {
+func (a *App) SelfProcessing(url string, name string) bool {
 	pattern := `^https://([a-zA-Z0-9-]+\.)?booth\.pm(?:/ja)?/items/(\d+)$`
 	re, _ := regexp.Compile(pattern)
 
@@ -256,7 +256,7 @@ func (a *App) SelfProcessing(url string, name string) string {
 
     if imageURL == "" {
 		runtime.EventsEmit(a.ctx, "toaster", "error", "画像URLが取得できませんでした", "URLが正しいか確認してください。")
-        return "Error"
+        return false
     }
 
 	//この後にスクレイピングで取得した画像URLを使って画像をダウンロードする処理を追加する
@@ -265,14 +265,14 @@ func (a *App) SelfProcessing(url string, name string) string {
 
 	if _, err := os.Stat(filepath.Join(inAvatarsFolder, filepath.Base(name))); err == nil{
 		runtime.EventsEmit(a.ctx, "toaster", "warning", "ファイルが既に存在します", "")
-        return imageURL
+        return false
 	}
 
 	if _, err := os.Stat(inAvatarsFolder); os.IsNotExist(err) {
 		if err := os.Mkdir(inAvatarsFolder, 0750); err != nil {
 			fmt.Println("ディレクトリの作成に失敗しました:", err)
 			runtime.EventsEmit(a.ctx, "toaster", "error", "フォルダ作成エラー", err.Error())
-            return "Error"
+            return false
 		}
 		//サムネイル画像を作成する
 		creatIcoThumbnail(imageURL, boothId, imagesPath, inAvatarsFolder)
@@ -286,8 +286,8 @@ func (a *App) SelfProcessing(url string, name string) string {
 	}
 	time.Sleep(1 * time.Second)
 
-	runtime.EventsEmit(a.ctx, "toaster", "success", "成功", "サムネイルを付与できました！")
-    return imageURL  // 成功時は画像URLを返す
+	runtime.EventsEmit(a.ctx, "toaster", "success", "サムネイルを付与できました", "設定された保存先フォルダに保存されました。")
+    return true
 }
 
 // startup is called when the app starts. The context is saved

@@ -9,7 +9,7 @@ export function OpenFolder():Promise<string>;
 
 export function SelectFolder(arg1:string,arg2:boolean):Promise<any>;
 
-export function SelfProcessing(arg1:string,arg2:string):Promise<string>;
+export function SelfProcessing(arg1:string,arg2:string):Promise<boolean>;
 
 export function WriteJsonFile(arg1:string,arg2:any):Promise<any>;
 
