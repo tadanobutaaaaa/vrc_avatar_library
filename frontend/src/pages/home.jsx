@@ -151,6 +151,28 @@ function manual() {
                 </Box>
                 <Box>
                     <Center>
+                        <Heading>手動でフォルダにサムネイルを付与する</Heading>
+                    </Center>
+                    <Flex ml="100px" mt="15px">
+                        <Image
+                            src="/images/selfProcessing.png"
+                            h="230px"
+                            borderWidth="1px"
+                            borderColor="gray.300"
+                            borderStyle="solid"
+                            borderRadius="md"
+                        ></Image>
+                        <Center ml="15px">
+                            <Text>
+                                アプリの左側のメニューから「手動設定」を選択し、<br />
+                                商品のURLとフォルダを選択して「決定」ボタンを押してください。<br /><br />
+                                自動サムネイル付与に対応していない無料商品のサムネイル付与にご活用ください。<br />
+                            </Text>
+                        </Center>
+                    </Flex>
+                </Box>
+                <Box>
+                    <Center>
                         <Heading>バグの発見、機能の要望などがある場合</Heading>
                     </Center>
                     <Flex ml="100px" mt="15px">
@@ -198,7 +220,6 @@ const selfProcess = () => {
                 setIsProcessing(false)
             }
         })
-        se
     }
 
     const SelectFolderProcess = () => {
