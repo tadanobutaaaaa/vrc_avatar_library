@@ -80,9 +80,9 @@ function manual() {
                     <Center mt="15px">
                         <Alert title="以下に該当する場合は処理から外れます。" status="error" w="70%">
                             <Box as="ul" listStyleType="circle">
-                                <li>解凍してないフォルダ(.zipファイル)の状態のまま処理を開始した</li>
-                                <li>パソコンに存在するフォルダのバージョンとBoothのライブラリのバージョンが一致しない</li>
-                                <li>ライブラリに商品の名前の記載がないフォルダ(配布の終了したフォルダ)</li>
+                                <li><strong>.zip形式のフォルダ</strong>(先に展開を行ってください)</li>
+                                <li>ライブラリに商品の名前の記載がないフォルダ(<strong>配布が終了している、バージョンが一致しない等</strong>)</li>
+                                <li>フォルダの名前の末尾に(2)などの記載があるフォルダ(<strong>重複しているフォルダ</strong>)</li>
                             </Box>
                         </Alert>
                     </Center>
