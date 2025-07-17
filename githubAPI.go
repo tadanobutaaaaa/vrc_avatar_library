@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	currentVersion = "v1.1.1" // 現在のバージョン
+	currentVersion = "v1.2.0" // 現在のバージョン
 	repoOwner      = "tadanobutaaaaa" // リポジトリのオーナー
 	repoName       = "vrc_avatar_library" // リポジトリの名前
 )
