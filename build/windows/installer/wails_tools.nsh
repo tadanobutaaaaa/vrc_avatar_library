@@ -14,7 +14,7 @@
     !define INFO_PRODUCTNAME "VRC-Avatar-Library"
 !endif
 !ifndef INFO_PRODUCTVERSION
-    !define INFO_PRODUCTVERSION "1.1.1"
+    !define INFO_PRODUCTVERSION "1.2.0"
 !endif
 !ifndef INFO_COPYRIGHT
     !define INFO_COPYRIGHT "© 2025 tadanobutaaaaa"
