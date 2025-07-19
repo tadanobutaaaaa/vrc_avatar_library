@@ -302,7 +302,6 @@ func GoServer(a *App) {
 
 							if _, err := os.Stat(inAvatarsFolder); os.IsNotExist(err) {
 								if err := os.Mkdir(inAvatarsFolder, 0750); err != nil {
-									log.Println("ディレクトリの作成に失敗しました:", err)
 									errorFolders = append(errorFolders, entry.Name())
 									continue
 								}
@@ -316,7 +315,6 @@ func GoServer(a *App) {
 							endLocation := filepath.Join(inAvatarsFolder, cleanedString)
 
 							if err := os.Rename(startLocation, endLocation); err != nil {
-								fmt.Println("ファイルの移動に失敗しました:", err)
 								errorFolders = append(errorFolders, entry.Name())
 								continue
 							}
