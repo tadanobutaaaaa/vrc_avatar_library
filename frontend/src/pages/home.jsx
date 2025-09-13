@@ -102,22 +102,14 @@ function manual() {
                         ></Image>
                         <Center>
                             <Text ml="15px">
-                                まず、
                                 <Link
                                     onClick={() => {BrowserOpenURL("https://accounts.booth.pm/library")}}
                                     variant="underline"
                                     colorPalette={"blue"}
                                     _hover={{ color: "teal" }}
                                     fontWeight="bold"
-                                >Booth</Link>にアクセスしてください。<br />   
-                                サムネイルを付与したい商品を選択し、「処理開始」ボタン <br />
-                                を押してください。<br />
-                                <br />
-                                <strong>最初は全てにチェックを付けたままの状態で処理を開始することを<br />
-                                おすすめします。</strong> <br />
-                                <br />
-                                <strong>※このようなボタンがない場合は拡張機能がダウンロードされているか<br />
-                                再度ご確認ください。</strong>
+                                >Booth</Link>にアクセスしてください。<br />
+                                そして、「処理開始」ボタンを押すだけです。<br />
                             </Text>
                         </Center>
                     </Flex>
