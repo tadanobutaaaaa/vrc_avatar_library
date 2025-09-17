@@ -263,8 +263,6 @@ func GoServer(a *App) {
 			log.Println("受け取ったJSONデータ:", string(jsonBytes))
 		}
 
-		fmt.Println("送信されたデータ:", jsonData)
-
 		configSearchPath, avatarsPath, imagesPath := isFolder(a)
 
 		entries, err := os.ReadDir(configSearchPath)

@@ -14,6 +14,7 @@ import { DialogActionTrigger, DialogBody, DialogContent, DialogFooter, DialogHea
 import { useForm } from "react-hook-form"
 
 function manual() {
+    const bolderColor = useColorModeValue("#e4e4e7", "#444444")
     return (
         <>
             <Center mt="20px">
@@ -30,7 +31,7 @@ function manual() {
                         src="/images/chromeExtension.png"
                         h="230px"
                         borderWidth="1px"
-                        borderColor="gray.300"
+                        borderColor={bolderColor}
                         borderStyle="solid"
                         borderRadius="md"
                     ></Image>
@@ -63,7 +64,7 @@ function manual() {
                             src="/images/settingFolderPath.png"
                             h="230px"
                             borderWidth="1px"
-                            borderColor="gray.300"
+                            borderColor={bolderColor}
                             borderStyle="solid"
                             borderRadius="md"
                         ></Image>
@@ -82,7 +83,7 @@ function manual() {
                             <Box as="ul" listStyleType="circle">
                                 <li><strong>.zip形式のフォルダ</strong>(先に展開を行ってください)</li>
                                 <li>ライブラリに商品の名前の記載がないフォルダ(<strong>配布が終了している、バージョンが一致しない等</strong>)</li>
-                                <li>フォルダの名前の末尾に(2)などの記載があるフォルダ(<strong>重複しているフォルダ</strong>)</li>
+                                <li>フォルダの名前の末尾に(2)などの記載があるフォルダ(<strong>重複して存在しているフォルダ</strong>)</li>
                             </Box>
                         </Alert>
                     </Center>
@@ -96,7 +97,7 @@ function manual() {
                             src="/images/boothLibrary.png"
                             h="230px"
                             borderWidth="1px"
-                            borderColor="gray.300"
+                            borderColor={bolderColor}
                             borderStyle="solid"
                             borderRadius="md"
                         ></Image>
@@ -108,8 +109,10 @@ function manual() {
                                     colorPalette={"blue"}
                                     _hover={{ color: "teal" }}
                                     fontWeight="bold"
-                                >Booth</Link>にアクセスしてください。<br />
-                                そして、「処理開始」ボタンを押すだけです。<br />
+                                >Booth</Link>のライブラリページにアクセスしてください。<br />
+                                そして、「処理開始」ボタンをクリックしてください。<br /><br />
+                                <strong>※このようなボタンがない場合は拡張機能が正しくインストールされているか<br />
+                                再度ご確認ください。</strong>
                             </Text>
                         </Center>
                     </Flex>
@@ -123,7 +126,7 @@ function manual() {
                             src="/images/folderSize.png"
                             h="230px"
                             borderWidth="1px"
-                            borderColor="gray.300"
+                            borderColor={bolderColor}
                             borderStyle="solid"
                             borderRadius="md"
                         ></Image>
@@ -151,7 +154,7 @@ function manual() {
                             src="/images/selfProcessing.png"
                             h="230px"
                             borderWidth="1px"
-                            borderColor="gray.300"
+                            borderColor={bolderColor}
                             borderStyle="solid"
                             borderRadius="md"
                         ></Image>
@@ -174,7 +177,7 @@ function manual() {
                             src="/images/googleForms.png"
                             h="230px"
                             borderWidth="1px"
-                            borderColor="gray.300"
+                            borderColor={bolderColor}
                             borderStyle="solid"
                             borderRadius="md"
                         ></Image>
@@ -205,7 +208,8 @@ const selfProcess = () => {
     } = useForm()
     const [processFolder, setProcessFolder] = useState("")
     const [isProcessig, setIsProcessing] = useState(false)
-    const bgColor = useColorModeValue("gray.100", "gray.400")
+    const bgColor = useColorModeValue("#f4f4f5", "#555555")
+    const bolderColor = useColorModeValue("#e4e4e7", "#666666")
 
     const SelfProcessingProcess = (src, pass) => {
         setIsProcessing(true)
@@ -280,7 +284,7 @@ const selfProcess = () => {
                             px="12px"
                             py="8px"
                             border="1px solid"
-                            borderColor="gray.200"
+                            borderColor={bolderColor}
                         >
                             <Text 
                                 textStyle="md" 

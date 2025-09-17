@@ -13,7 +13,10 @@ function SetupProcess() {
     const [searchFolder, setSearchFolder] = useState("")
     const [moveFolder, setMoveFolder] = useState("")
 
-    const bgColor = useColorModeValue("gray.100", "gray.400")
+
+    const bgColor = useColorModeValue("#f4f4f5", "#555555")
+    const boxColor = useColorModeValue("#c0c0c0", "#222222")
+    const bolderColor = useColorModeValue("#e4e4e7", "#666666")
 
     useEffect(() => {
         const writeJsonSearchFolder = async () => {
@@ -46,7 +49,7 @@ function SetupProcess() {
         <>
             <Header />
             <Box ml="50px" mt="50px">
-                <Box background="#c0c0c0" w="85%" p="20px" borderRadius="md">
+                <Box background={boxColor} w="85%" p="20px" borderRadius="md">
                     <Flex alignItems="center" gap="6px" mb="5px">
                         <Search />
                         <Text textStyle="2xl" fontWeight="bold">検索フォルダ</Text>
@@ -62,7 +65,7 @@ function SetupProcess() {
                             px="12px"
                             py="8px"
                             border="1px solid"
-                            borderColor="gray.200"
+                            borderColor={bolderColor}
                         >
                             <Text 
                                 textStyle="md"
@@ -81,7 +84,7 @@ function SetupProcess() {
                 </Box>
             </Box>
             <Box ml="50px" mt="30px">
-                <Box background="#c0c0c0" w="85%" p="20px" borderRadius="md">
+                <Box background={boxColor} w="85%" p="20px" borderRadius="md">
                     <Flex alignItems="center" gap="6px" mb="5px">
                         <Folder />
                         <Text textStyle="2xl" fontWeight="bold">保存先のフォルダ</Text>
@@ -97,7 +100,7 @@ function SetupProcess() {
                             px="12px"
                             py="8px"
                             border="1px solid"
-                            borderColor="gray.200"
+                            borderColor={bolderColor}
                         >
                             <Text 
                                 textStyle="md" 
