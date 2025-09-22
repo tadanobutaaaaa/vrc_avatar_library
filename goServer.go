@@ -53,7 +53,8 @@ func exchangeString(folderName string) string {
 }
 */
 
-func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) {
+//icoサムネイル画像の作成
+func createIcoThumbnail(url string, name string, jpgPath string, icoPath string) {
 	if (strings.HasPrefix(url, "https://booth.pximg.net/")) {
 		resp, err := http.Get(url)
 		if err != nil {
@@ -93,6 +94,7 @@ func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) 
 		if err != nil {
 			return
 		}
+		defer icoFile.Close()
 
 		err = ico.Encode(icoFile, resizedImg)
 		if err != nil {
@@ -102,6 +104,7 @@ func creatIcoThumbnail(url string, name string, jpgPath string, icoPath string) 
 	}
 }
 
+//desktop.iniの作成
 func writeDesktopIni(desktopIniFolderPath string, icoName string, icoPath string) {
 	//iniファイルに書き込む
 	desktopIniPath := filepath.Join(desktopIniFolderPath, "desktop.ini")
@@ -129,6 +132,26 @@ func writeDesktopIni(desktopIniFolderPath string, icoName string, icoPath string
 	if err := cmd.Run(); err != nil {
 		return
 	}
+}
+
+//.urlファイルの作成
+func createUrlFile(createPath string) {
+	file, err := os.Create(filepath.Join(createPath, "Booth.url"))
+	if err != nil {
+		fmt.Println("Error creating .url file:", err)
+		return
+	}
+	defer file.Close()
+
+	itemId := filepath.Base(createPath)
+
+	_, err = file.WriteString(fmt.Sprintf("[InternetShortcut]\nURL=https://booth.pm/ja/items/%s\n", itemId))
+	if err != nil {
+		fmt.Println("Error writing to .url file:", err)
+		return
+	}
+
+	fmt.Println("urlファイルの作成に成功しました:", file.Name())
 }
 
 func sendWebsocket(status bool, complement int, processedCount int) {
@@ -203,9 +226,6 @@ func GoServer(a *App) {
 		},
 		AllowHeaders: []string{
 			"Content-Type",
-		},
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "chrome-extension://hdfbpdpcecklifkgfdjegflfigfmjfib"
 		},
 	}))
 
@@ -304,7 +324,9 @@ func GoServer(a *App) {
 									continue
 								}
 								//サムネイル画像を作成する
-								creatIcoThumbnail(booth.Src, booth.Id, imagesPath, inAvatarsFolder)
+								createIcoThumbnail(booth.Src, booth.Id, imagesPath, inAvatarsFolder)
+								//TODO: .urlファイルの作成
+								createUrlFile(inAvatarsFolder)
 							}
 
 							//ファイルの移動元

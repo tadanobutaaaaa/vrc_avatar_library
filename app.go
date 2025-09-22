@@ -275,7 +275,7 @@ func (a *App) SelfProcessing(url string, name string) bool {
             return false
 		}
 		//サムネイル画像を作成する
-		creatIcoThumbnail(imageURL, boothId, imagesPath, inAvatarsFolder)
+		createIcoThumbnail(imageURL, boothId, imagesPath, inAvatarsFolder)
 	}
 	startLocation := name
 	endLocation := filepath.Join(inAvatarsFolder, filepath.Base(name))
